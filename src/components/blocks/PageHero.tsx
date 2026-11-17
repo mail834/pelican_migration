@@ -49,11 +49,17 @@ export function Breadcrumb({ items, className = "" }: { items: Crumb[]; classNam
   );
 }
 
+/** Figma "CICC CCIC Glassmorphism Emblem Banner" — 307×83, radius 19, source cropped at Figma's insets. */
 export function CiccBadge({ className = "" }: { className?: string }) {
   return (
-    <div className={`flex w-[11.25rem] flex-col items-center ${className}`}>
-      <img alt="CICC licensed" src={imageUrl("/images/cicc-badge.png")} width={174} height={57} className="h-[3.5625rem] w-[10.875rem]" />
-      <p className="t-body2 w-full font-medium text-light-50">We are CICC Licensed</p>
+    <div className={`relative aspect-[307/83] w-[19.1875rem] max-w-full overflow-hidden rounded-[1.1875rem] ${className}`}>
+      <img
+        alt="CICC licensed — College of Immigration and Citizenship Consultants"
+        src={imageUrl("/images/cicc-emblem.png", 720)}
+        width={2172}
+        height={724}
+        className="absolute top-[-14.18%] left-[-3.03%] h-[130.6%] w-[105.93%] max-w-none"
+      />
     </div>
   );
 }
@@ -61,13 +67,13 @@ export function CiccBadge({ className = "" }: { className?: string }) {
 /** Inner-page hero (Figma "Frame 114/115", 1920×794). Desktop elements sit at their Figma y positions. */
 export default function PageHero({ image, breadcrumb, title, tops, titleWidth = 396, titleWeight = "medium", badge, text, textWidth = 438, form }: PageHeroProps) {
   const pos = (top?: number) => (top === undefined ? undefined : ({ "--top": rem(top) } as React.CSSProperties));
-  const abs = "lg:absolute lg:left-[var(--gutter)] lg:top-[var(--top)]";
+  const abs = "xl:absolute xl:left-[var(--gutter)] xl:top-[var(--top)]";
   return (
     <section className="relative overflow-hidden bg-navy-500">
-      <Image src={image} alt="" fill priority sizes="100vw" className="object-cover object-[65%_center] lg:object-center" />
-      <div className="absolute inset-0 bg-navy-500/55 lg:hidden" aria-hidden />
+      <Image src={image} alt="" fill priority sizes="100vw" className="object-cover object-[65%_center] xl:object-center" />
+      <div className="absolute inset-0 bg-navy-500/55 xl:hidden" aria-hidden />
 
-      <div className="container-page relative flex flex-col gap-6 py-12 md:py-16 lg:h-[49.625rem] lg:py-0">
+      <div className="container-page relative flex flex-col gap-6 py-12 md:py-16 xl:h-[49.625rem] xl:py-0">
         {tops.breadcrumb !== undefined && (
           <div className={abs} style={pos(tops.breadcrumb)}>
             <Breadcrumb items={breadcrumb} />
@@ -84,20 +90,25 @@ export default function PageHero({ image, breadcrumb, title, tops, titleWidth = 
         >
           <Rich text={title} />
         </h1>
-        {text && tops.text !== undefined && (
-          <p className={`t-label3 text-light-50 ${abs}`} style={{ ...pos(tops.text), maxWidth: rem(textWidth) }}>
-            <Rich text={text} />
-          </p>
-        )}
-        {badge && tops.badge !== undefined && tops.badge > tops.title && (
-          <div className={abs} style={pos(tops.badge)}>
-            <CiccBadge />
+        {text && tops.text !== undefined ? (
+          // Text and a following badge share one block so the badge always sits below however many lines the text wraps to.
+          <div className={`flex flex-col gap-6 ${abs}`} style={pos(tops.text)}>
+            <p className="t-label3 text-light-50" style={{ maxWidth: rem(textWidth) }}>
+              <Rich text={text} />
+            </p>
+            {badge && tops.badge !== undefined && tops.badge > tops.title && <CiccBadge />}
           </div>
+        ) : (
+          badge && tops.badge !== undefined && tops.badge > tops.title && (
+            <div className={abs} style={pos(tops.badge)}>
+              <CiccBadge />
+            </div>
+          )
         )}
         {form && (
           <div
             id="assessment"
-            className="w-full max-w-[35.125rem] scroll-mt-32 lg:absolute lg:top-[var(--top)] lg:right-[var(--gutter)] lg:w-[35.125rem]"
+            className="w-full max-w-[35.125rem] scroll-mt-32 xl:absolute xl:top-[var(--top)] xl:right-[var(--gutter)] xl:w-[35.125rem]"
             style={pos(form.top ?? 239)}
           >
             <HeroForm {...form} />

@@ -24,8 +24,8 @@ const cards: Card[] = [
     title: "Doctors, Nurses and Healthcare Professional",
     tone: "orange",
     image: "/images/help-healthcare.png",
-    frame: { right: "0%", bottom: "0%", width: "73.02%", aspect: "368/231" },
-    crop: "top-[-50.51%] left-0 h-[268.62%] w-[112.5%]",
+    frame: { right: "0%", bottom: "-14.26%", width: "58.13%", aspect: "1/1" },
+    crop: "inset-0 size-full object-cover",
   },
   {
     title: "Engineers and IT Professionals",
@@ -45,8 +45,8 @@ const cards: Card[] = [
     title: "Managers and Senior Professionals",
     tone: "navy",
     image: "/images/help-manager.png",
-    frame: { right: "0%", bottom: "-22.61%", width: "63.69%", aspect: "321/336" },
-    crop: "top-[-30.23%] left-[-0.04%] h-[143.41%] w-[100.07%]",
+    frame: { right: "2.38%", bottom: "-33.69%", width: "57.34%", aspect: "289/361" },
+    crop: "inset-0 size-full object-cover",
   },
   {
     title: "Investors and Business Owners",

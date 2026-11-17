@@ -11,6 +11,7 @@ const columns: { title: string; links: { label: string; href: string }[] }[] = [
       { label: "About Us", href: "/about-us" },
       { label: "Check Eligibility", href: "/check-eligibility" },
       { label: "Success Stories", href: "/success-stories" },
+      { label: "Visa Approvals", href: "/visa-gallery" },
       { label: "Blogs", href: "/blogs" },
     ],
   },
@@ -53,12 +54,14 @@ const columns: { title: string; links: { label: string; href: string }[] }[] = [
 
 /** Social icons — each glyph sits on a 49px navy tile at the Figma insets. */
 const socials = [
-  { name: "Facebook", href: "https://www.facebook.com/", src: "/icons/social-facebook.svg", w: 49, inset: "top-1/4 left-[37%] h-1/2 w-[27.07%]", tile: true },
-  { name: "Instagram", href: "https://www.instagram.com/", src: "/icons/social-instagram.svg", w: 50, inset: "top-[22.94%] left-[22.94%] h-[54.6%] w-[54.63%]", tile: true },
-  { name: "TikTok", href: "https://www.tiktok.com/", src: "/icons/social-tiktok.svg", w: 48, inset: "top-[27.01%] left-[30.41%] h-[48.03%] w-[41.86%]", tile: true },
-  { name: "Pinterest", href: "https://www.pinterest.com/", src: "/icons/social-pinterest.svg", w: 48, inset: "inset-0", tile: false },
-  { name: "LinkedIn", href: "https://www.linkedin.com/", src: "/icons/social-linkedin.svg", w: 50, inset: "top-[22.94%] left-[22.94%] h-[54.64%] w-[54.64%]", tile: true },
-  { name: "YouTube", href: "https://www.youtube.com/", src: "/icons/social-youtube.svg", w: 49, inset: "inset-0", tile: false },
+  { name: "Facebook", href: "https://www.facebook.com/pelicanmigrate", src: "/icons/social-facebook.svg", w: 49, inset: "top-1/4 left-[37%] h-1/2 w-[27.07%]", tile: true },
+  { name: "Instagram", href: "https://www.instagram.com/pelicanmigrationconsultants/", src: "/icons/social-instagram.svg", w: 50, inset: "top-[22.94%] left-[22.94%] h-[54.6%] w-[54.63%]", tile: true },
+  { name: "TikTok", href: "https://www.tiktok.com/@pelicanmigration2017", src: "/icons/social-tiktok.svg", w: 48, inset: "top-[27.01%] left-[30.41%] h-[48.03%] w-[41.86%]", tile: true },
+  { name: "Pinterest", href: "https://pinterest.com/pelicanmigrationconsultants", src: "/icons/social-pinterest.svg", w: 48, inset: "inset-0", tile: false },
+  { name: "LinkedIn", href: "https://www.linkedin.com/company/pelican-migration", src: "/icons/social-linkedin.svg", w: 50, inset: "top-[22.94%] left-[22.94%] h-[54.64%] w-[54.64%]", tile: true },
+  { name: "YouTube", href: "https://www.youtube.com/c/PelicanMigrationConsultants", src: "/icons/social-youtube.svg", w: 49, inset: "inset-0", tile: false },
+  // Not in the Figma footer: same navy tile as the others, glyph sized like Instagram/LinkedIn.
+  { name: "X", href: "https://x.com/PelicanVisaHelp", src: "/icons/social-x.svg", w: 49, inset: "top-[27%] left-[27%] h-[46%] w-[46%]", tile: true },
 ];
 
 function ContactRow({ icon, children, href, callIcon }: { icon: string; children: React.ReactNode; href?: string; callIcon?: boolean }) {

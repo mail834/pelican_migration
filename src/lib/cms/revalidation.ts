@@ -10,7 +10,8 @@ export function revalidationTargets(change: CmsChange) {
     for (const slug of [change.slug, change.previousSlug]) if (typeof slug === "string" && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) paths.add(`/blogs/${slug}`);
   } else if (change._type === "visaApproval") tags.add("sanity:approvals");
   else if (change._type === "testimonial") tags.add("sanity:testimonials");
-  else if (change._type === "video" || change._type === "sanity.fileAsset") tags.add("sanity:videos");
-  else if (change._type === "siteContent" || change._type === "sanity.imageAsset") for (const tag of ["sanity:pages", "sanity:approvals", "sanity:testimonials", "sanity:blogs", "sanity:videos"]) tags.add(tag);
+  else if (change._type === "video") tags.add("sanity:videos");
+  else if (change._type === "sanity.fileAsset") { tags.add("sanity:videos"); tags.add("sanity:settings"); }
+  else if (change._type === "siteContent" || change._type === "sanity.imageAsset") for (const tag of ["sanity:pages", "sanity:approvals", "sanity:testimonials", "sanity:blogs", "sanity:videos", "sanity:settings"]) tags.add(tag);
   return { tags: [...tags], paths: [...paths] };
 }

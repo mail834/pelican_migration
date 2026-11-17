@@ -5,7 +5,7 @@ import { HLine } from "@/components/ui/Lines";
 const left = [
   {
     title: "Professional Licensed Consultants",
-    text: "Get nominated by a Canadian province for permanent residency! Pelican Migration Consultants guides skilled workers and entrepreneurs through the PNP process, increasing your chances of success.",
+    text: "Explore Your Pathway to Canadian Permanent Residency! Whether through Provincial Nominee Programs (PNP), Express Entry, or other eligible immigration pathways, Pelican Migration Consultants helps skilled workers and entrepreneurs understand their options and navigate the application process with professional guidance.",
   },
   {
     title: "Cost-Effective Immigration Services",

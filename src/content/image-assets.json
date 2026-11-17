@@ -12,15 +12,15 @@
     "height": 1440
   },
   "/images/banner-office-light.png": {
-    "url": "https://cdn.sanity.io/images/3zrn3yuo/production/945ca7103a4af74550d18dfd30951727f82888ed-953x520.webp",
-    "asset": "image-945ca7103a4af74550d18dfd30951727f82888ed-953x520-webp",
-    "width": 953,
-    "height": 520
+    "url": "https://cdn.sanity.io/images/3zrn3yuo/production/73cd5362a974a15b3e2cca16e8576b190fb3768e-1671x941.webp",
+    "asset": "image-73cd5362a974a15b3e2cca16e8576b190fb3768e-1671x941-webp",
+    "width": 1671,
+    "height": 941
   },
   "/images/banner-office.png": {
-    "url": "https://cdn.sanity.io/images/3zrn3yuo/production/983f011fa3390d9a4575064747d796aa8ffbd498-1672x941.webp",
-    "asset": "image-983f011fa3390d9a4575064747d796aa8ffbd498-1672x941-webp",
-    "width": 1672,
+    "url": "https://cdn.sanity.io/images/3zrn3yuo/production/cab191d3f67c0076da625a5ce0fa05b00b30ca34-1671x941.webp",
+    "asset": "image-cab191d3f67c0076da625a5ce0fa05b00b30ca34-1671x941-webp",
+    "width": 1671,
     "height": 941
   },
   "/images/banner-pattern.png": {
@@ -77,6 +77,12 @@
     "width": 174,
     "height": 57
   },
+  "/images/cicc-emblem.png": {
+    "url": "https://cdn.sanity.io/images/3zrn3yuo/production/9732038f3b2fec3d8e7feb08af68dcbbc4159ac5-2172x724.webp",
+    "asset": "image-9732038f3b2fec3d8e7feb08af68dcbbc4159ac5-2172x724-webp",
+    "width": 2172,
+    "height": 724
+  },
   "/images/dest-australia.png": {
     "url": "https://cdn.sanity.io/images/3zrn3yuo/production/9892175e8866dff9d3643a75e7ca7f48864cbef1-640x800.webp",
     "asset": "image-9892175e8866dff9d3643a75e7ca7f48864cbef1-640x800-webp",
@@ -120,10 +126,10 @@
     "height": 1334
   },
   "/images/help-healthcare.png": {
-    "url": "https://cdn.sanity.io/images/3zrn3yuo/production/2b9ac1d03b001c6981419913af6f46c63f944922-1280x1920.webp",
-    "asset": "image-2b9ac1d03b001c6981419913af6f46c63f944922-1280x1920-webp",
-    "width": 1280,
-    "height": 1920
+    "url": "https://cdn.sanity.io/images/3zrn3yuo/production/594851a2af0b61a76fd76fad713db8b1a3f038f7-1080x1080.webp",
+    "asset": "image-594851a2af0b61a76fd76fad713db8b1a3f038f7-1080x1080-webp",
+    "width": 1080,
+    "height": 1080
   },
   "/images/help-investor.png": {
     "url": "https://cdn.sanity.io/images/3zrn3yuo/production/50fd5a4cfd8feb93db7fa42ecb9ab5ce550e0f6a-1333x2000.webp",
@@ -132,10 +138,10 @@
     "height": 2000
   },
   "/images/help-manager.png": {
-    "url": "https://cdn.sanity.io/images/3zrn3yuo/production/b657982c436b99d1165a373cda667e77f96f2571-1335x2000.webp",
-    "asset": "image-b657982c436b99d1165a373cda667e77f96f2571-1335x2000-webp",
-    "width": 1335,
-    "height": 2000
+    "url": "https://cdn.sanity.io/images/3zrn3yuo/production/76e80ce8487e2ca88eeff58a52937eae763ab8f6-1080x1350.webp",
+    "asset": "image-76e80ce8487e2ca88eeff58a52937eae763ab8f6-1080x1350-webp",
+    "width": 1080,
+    "height": 1350
   },
   "/images/help-pattern.png": {
     "url": "https://cdn.sanity.io/images/3zrn3yuo/production/f5bf1b52b8151f26a17c0843f2deff7c1bad2114-1024x1024.webp",
@@ -540,10 +546,10 @@
     "height": 369
   },
   "/images/pages/hero-about.png": {
-    "url": "https://cdn.sanity.io/images/3zrn3yuo/production/2877e0fe64b99a58eb09fce69a0fe2f8aa98897e-1920x794.webp",
-    "asset": "image-2877e0fe64b99a58eb09fce69a0fe2f8aa98897e-1920x794-webp",
-    "width": 1920,
-    "height": 794
+    "url": "https://cdn.sanity.io/images/3zrn3yuo/production/ee84c406c3e47438eb0719e343f1f2b720d38535-2000x1200.webp",
+    "asset": "image-ee84c406c3e47438eb0719e343f1f2b720d38535-2000x1200-webp",
+    "width": 2000,
+    "height": 1200
   },
   "/images/pages/hero-australia-migration.png": {
     "url": "https://cdn.sanity.io/images/3zrn3yuo/production/e39c207f585c1dd1ae3f0a557b0e7bff4c7595c2-1920x794.webp",
@@ -564,10 +570,10 @@
     "height": 794
   },
   "/images/pages/hero-canada-express-entry.png": {
-    "url": "https://cdn.sanity.io/images/3zrn3yuo/production/17c5477ce9263b77cdd19d0b3bc58d749f2a9cf1-1920x794.webp",
-    "asset": "image-17c5477ce9263b77cdd19d0b3bc58d749f2a9cf1-1920x794-webp",
-    "width": 1920,
-    "height": 794
+    "url": "https://cdn.sanity.io/images/3zrn3yuo/production/15ea5c26237843015b90c02b1aa03f15af717a55-2000x1273.webp",
+    "asset": "image-15ea5c26237843015b90c02b1aa03f15af717a55-2000x1273-webp",
+    "width": 2000,
+    "height": 1273
   },
   "/images/pages/hero-canada-migration.png": {
     "url": "https://cdn.sanity.io/images/3zrn3yuo/production/47446123f1cfcc304ca7cb3c49f606499d4f9cf9-1920x794.webp",
@@ -576,10 +582,10 @@
     "height": 794
   },
   "/images/pages/hero-canada-pr.png": {
-    "url": "https://cdn.sanity.io/images/3zrn3yuo/production/554054df474dde2968b04c3bfab785b5d042731a-1920x794.webp",
-    "asset": "image-554054df474dde2968b04c3bfab785b5d042731a-1920x794-webp",
+    "url": "https://cdn.sanity.io/images/3zrn3yuo/production/eeaa39d97d68d407380edc3374261c2561c9590a-1920x1172.webp",
+    "asset": "image-eeaa39d97d68d407380edc3374261c2561c9590a-1920x1172-webp",
     "width": 1920,
-    "height": 794
+    "height": 1172
   },
   "/images/pages/hero-canada-study-visa.png": {
     "url": "https://cdn.sanity.io/images/3zrn3yuo/production/ce1d97028c3ddb03cf5b7229c544043d981075b9-1920x794.webp",
@@ -1410,9 +1416,9 @@
     "height": 683
   },
   "/images/why-choose.png": {
-    "url": "https://cdn.sanity.io/images/3zrn3yuo/production/0b1d18d896756628b916a35e539a6e794165badc-1086x1448.webp",
-    "asset": "image-0b1d18d896756628b916a35e539a6e794165badc-1086x1448-webp",
-    "width": 1086,
-    "height": 1448
+    "url": "https://cdn.sanity.io/images/3zrn3yuo/production/d7b41829b4fdf652c482823805824ad5bf175d6d-1087x1447.webp",
+    "asset": "image-d7b41829b4fdf652c482823805824ad5bf175d6d-1087x1447-webp",
+    "width": 1087,
+    "height": 1447
   }
 }

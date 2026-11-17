@@ -10,9 +10,9 @@ export const canadaMigration: PageData = {
     image: "/images/pages/hero-canada-migration.png",
     breadcrumb: [{ label: "Canada", href: "/canada-migration" }, { label: "Canada Migration" }],
     title: "Migrate to\nCanada",
-    tops: { breadcrumb: 210, badge: 337, title: 435, text: 583 },
+    tops: { breadcrumb: 210, title: 416, text: 564, badge: 648 },
     badge: true,
-    text: "We are **CICC Licensed** at R507572 implying that your chances of getting a permanent residency is maximized when you decide to sign up with us",
+    text: "Work with confidence. As a **CICC Licensed** immigration consultancy (RCIC #R507572), we provide expert guidance, strategic pathway recommendations, and professional application support to help strengthen your Canadian PR journey",
     form: { title: "Let Us Help You Migrate to Canada.", destination: "Canada" },
   },
   blocks: [
@@ -20,9 +20,8 @@ export const canadaMigration: PageData = {
       type: "intro",
       title: "Middle East's Best Canada Immigration Consultants",
       paragraphs: [
-        "Pelican Migration Consultants leads the way in delivering top-quality services to clients looking to migrate to Canada, Portugal, New Zealand, and Australia. With a client-focused approach and a commitment to excellence, we provide personalized guidance throughout every stage of the migration journey.",
-        "The Canada PR Visa comes with its own benefits, restrictions, and entry criteria. Hence, it is critical to your success to have a professional migration consultancy on your side. Permanent Residency in Canada opens your door to the same rights as Canadian citizens – healthcare and social benefits, work opportunities, and protection under the Canadian Charter of Rights and Freedoms. With our many years of expertise in Canada Immigration, we ensure that your Canada immigration application has every chance of success.",
-        "Reach out to us today to schedule a consultation for a thorough and detailed assessment of your situation as well as your best way to migrate to Canada.",
+        "A Canada PR Visa is one of the most popular options for individuals looking to build a better future in Canada. It offers several benefits, including the freedom to live, work, and study anywhere in the country, access to publicly funded healthcare (subject to eligibility), opportunities for family sponsorship, and a pathway to Canadian citizenship.\nWith its excellent career opportunities, quality education, multicultural communities, and high standard of living, Canada continues to attract skilled professionals and families from around the world.",
+        "Are you wondering how to obtain a Canada Permanent Resident Visa from the UAE? Explore the different Canada PR pathways, eligibility requirements, and application categories to discover how you can make Canada your new home.",
       ],
     },
     {
@@ -70,7 +69,7 @@ export const canadaMigration: PageData = {
         {
           title: "Eligibility For Canadian Immigration",
           intro:
-            "To immigrate to Canada, you must first meet the basic criteria.\nTake time to understand the requirements for your chosen pathway.\n[[Check Your Eligibility]] before proceeding with your application.\nTo begin the immigration process, you must meet the following criteria:",
+            "To immigrate to Canada, you must first meet the basic criteria.\nTake time to understand the requirements for your chosen pathway.\n[[Check Your Eligibility]](/check-eligibility) before proceeding with your application.\nTo begin the immigration process, you must meet the following criteria:",
           items: [
             "Have worked in one of the 347 National Occupation Classification System listed occupations for at least one year full-time or an equal length of part-time in the last 10 years.",
             "Pass the language test and demonstrate intermediate language skills in English or French;",

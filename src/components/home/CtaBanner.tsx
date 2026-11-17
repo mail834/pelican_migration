@@ -2,6 +2,7 @@
 import { imageUrl } from "@/lib/image-url";
 import Image from "next/image";
 import { ButtonLink } from "@/components/ui/Button";
+import { getBrochureUrl } from "@/lib/cms/content";
 
 /*
   Figma frame 1560×520 (Banner). From lg it is a fixed-shape 3:1 box with everything
@@ -18,8 +19,10 @@ type Props =
   | { variant?: "navy" }
   | { variant: "light"; title?: string; text?: string };
 
-export default function CtaBanner(props: Props) {
+export default async function CtaBanner(props: Props) {
   const light = props.variant === "light";
+  // Brochure is managed in Studio → Collection Settings; `?dl=` makes Sanity's CDN send it as a download.
+  const brochure = light ? await getBrochureUrl() : null;
   const title = light ? (props.title ?? "We’re Here to Help") : "Ready to start your Migration Journey with Trusted Migration Consultants in UAE?";
   const text = light
     ? (props.text ?? "Open The Live Chat And Start The Conversation With Our Immigration Consultants. We’re Always Happy To Help.")
@@ -47,7 +50,11 @@ export default function CtaBanner(props: Props) {
                 <h2 className="t-display1 font-bold text-orange-300">{title}</h2>
                 <p className="t-body1 max-w-[28rem] text-dark-200">{text}</p>
                 <div className="flex flex-wrap items-center">
-                  <ButtonLink href="/contact-us" className="py-[0.9375rem]">
+                  <ButtonLink
+                    href={brochure ? `${brochure}?dl=Pelican-Migration-Consultants-Brochure.pdf` : "/contact-us"}
+                    className="py-[0.9375rem]"
+                    {...(brochure ? { download: true, target: "_blank", rel: "noopener" } : {})}
+                  >
                     Download Brochure
                   </ButtonLink>
                   <ButtonLink href="/contact-us" variant="secondary">
@@ -76,15 +83,13 @@ export default function CtaBanner(props: Props) {
                 className="object-cover"
               />
             ) : (
-              <div className="absolute top-[-8.7%] left-[-10.18%] h-[117.21%] w-[113.64%]">
-                <Image
-                  src={imageUrl("/images/banner-office.png")}
-                  alt="Pelican Migration consultant meeting clients in the Dubai office"
-                  fill
-                  sizes="(min-width:1024px) 60vw, 100vw"
-                  className="object-cover"
-                />
-              </div>
+              <Image
+                src={imageUrl("/images/banner-office.png")}
+                alt="Pelican Migration consultant meeting clients in the Dubai office"
+                fill
+                sizes="(min-width:1024px) 60vw, 100vw"
+                className="object-cover"
+              />
             )}
           </div>
 

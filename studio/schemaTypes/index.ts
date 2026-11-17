@@ -56,6 +56,7 @@ export const post = defineType({ name: "blogPost", title: "Blog Posts", type: "d
   defineField({ name: "seoDescription", title: "Search description", type: "text", rows: 2, validation: (rule) => rule.max(170) }),
 ], preview: { select: { title: "title", media: "coverImage", subtitle: "publishedAt" } } });
 export const settings = defineType({ name: "siteContent", title: "Collection Settings", type: "document", fields: [
+  defineField({ name: "brochure", title: "Brochure (PDF)", type: "file", options: { accept: "application/pdf" }, description: "Downloaded by the “Download Brochure” button in the “We’re Here to Help” banner on inner pages. Replace the file to update it everywhere; leave empty to send visitors to the Contact page instead." }),
   defineField({ name: "manageApprovals", title: "Use CMS visa approval collection", type: "boolean", description: "Enable after uploading approval images. An empty collection then displays an empty state rather than sample images.", initialValue: false }),
   defineField({ name: "manageHomeTestimonials", title: "Use CMS homepage video testimonials", type: "boolean", initialValue: false }),
   defineField({ name: "manageBlogs", title: "Use CMS blog collection", type: "boolean", description: "Enable after importing articles. Unpublished posts will be removed from the public site.", initialValue: false }),

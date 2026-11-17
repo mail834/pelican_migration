@@ -257,7 +257,11 @@ export const portugalD2: PageData = {
   slug: "portugal-d2-visa",
   metaTitle: "Portugal D2 Visa | Pelican Migration Consultants",
   metaDescription: "The Portugal D2 Visa lets non-EU entrepreneurs establish or invest in a business in Portugal and gain residency.",
-  hero: ptHero("d2", "D2 Visa\nPortugal", "Secure your future with the Passive Income Visa, offering the freedom to live by the ocean, travel extensively, and obtain citizenship within five years."),
+  hero: {
+    ...ptHero("d2", "Portugal D2 Visa -\nEntrepreneur Visa", "Secure your future with the Passive Income Visa, offering the freedom to live by the ocean, travel extensively, and obtain citizenship within five years."),
+    // Two lines of ~560px at display size; wider box keeps it to two lines so it stays clear of the text below.
+    titleWidth: 600,
+  },
   blocks: [
     {
       type: "media",

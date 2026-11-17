@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, type ComponentProps } from "react";
+import { useEffect, useRef, useState, type ComponentProps } from "react";
 import { dialCodes, type FormOption } from "@/lib/form-options";
+import { timezoneCountry } from "@/lib/timezone-country";
 export { destinations, qualifications, nationalities, referralSources } from "@/lib/form-options";
 
 const box =
@@ -46,9 +47,50 @@ export function SelectInput({
   );
 }
 
-/** Dial-code choices from the live site, inside the Figma phone field. */
+// Dial-code list names that differ from the standard English region names.
+const dialCodeAliases: Record<string, string> = {
+  AE: "UAE", CD: "Congo DR", CG: "Congo", CZ: "Czech Republic", GB: "UK", HK: "Hong Kong", LC: "Saint Lucia",
+  MK: "Macedonia", MM: "Myanmar", MO: "Macau", PS: "Palestine", TC: "Turks & Caicos", TR: "Turkey", US: "USA",
+};
+const GEO_KEY = "pelican-visitor-country";
+let geoRequest: Promise<string | null> | undefined;
+
+/** The visitor's ISO country (host IP header, else browser time zone), resolved once and remembered for the session. */
+function visitorCountry() {
+  geoRequest ??= (async () => {
+    try {
+      const saved = sessionStorage.getItem(GEO_KEY);
+      if (saved) return saved === "-" ? null : saved;
+    } catch {}
+    const ipCountry = await fetch("/api/geo", { cache: "no-store" })
+      .then((r) => (r.ok ? (r.json() as Promise<{ country?: string | null }>) : null))
+      .then((d) => d?.country ?? null, () => null);
+    const country = ipCountry ?? timezoneCountry();
+    try { sessionStorage.setItem(GEO_KEY, country ?? "-"); } catch {}
+    return country;
+  })();
+  return geoRequest;
+}
+
+function dialCodeFor(iso: string) {
+  let name = dialCodeAliases[iso];
+  if (!name) try { name = new Intl.DisplayNames(["en"], { type: "region" }).of(iso) ?? ""; } catch { return undefined; }
+  return dialCodes.find((option) => option.value.startsWith(`${name} (`))?.value;
+}
+
+/** Dial-code choices from the live site, inside the Figma phone field. Defaults to the visitor's location (UAE otherwise). */
 export function PhoneInput({ className = "", name = "phone", ...props }: ComponentProps<"input">) {
   const [country, setCountry] = useState(dialCodes[0].value);
+  const touched = useRef(false);
+
+  useEffect(() => {
+    let active = true;
+    visitorCountry().then((iso) => {
+      const match = iso && dialCodeFor(iso);
+      if (active && match && !touched.current) setCountry(match);
+    });
+    return () => { active = false; };
+  }, []);
   const code = country.match(/\(([^)]+)\)/)?.[1] ?? "+971";
   return (
     <div className={`relative flex h-[3.25rem] w-full items-center gap-2.5 rounded-sm border-[0.5px] border-transparent bg-light-200 px-5 focus-within:border-grey-300 ${className}`}>
@@ -56,7 +98,7 @@ export function PhoneInput({ className = "", name = "phone", ...props }: Compone
         aria-label="Phone country code"
         name={`${name}CountryCode`}
         value={country}
-        onChange={(event) => setCountry(event.target.value)}
+        onChange={(event) => { touched.current = true; setCountry(event.target.value); }}
         className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
       >
         {dialCodes.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}

@@ -430,10 +430,11 @@ export const canadaExpressEntry: PageData = {
     "Express Entry is the primary way to migrate to Canada as a skilled worker. Our CICC licensed consultants make the process seamless.",
   hero: {
     image: "/images/pages/hero-canada-express-entry.png",
-    breadcrumb: [{ label: "Canada", href: "/canada-migration" }, { label: "Express Entry" }],
+    breadcrumb: [{ label: "Canada", href: "/canada-migration" }, { label: "Canada Express Entry" }],
     title: "Canada\nExpress Entry",
     titleWidth: 408,
-    tops: serviceTops,
+    tops: { breadcrumb: 210, title: 337, text: 485, badge: 648 },
+    badge: true,
     text: "Express Entry is perhaps the primary way to migrate to Canada as a skilled worker. After all, the country welcomes nearly 110,000 Express Entry immigrants each year. At Pelican Migration Consultants, we aim to put you in that 110,000. Leveraging our expertise and knowledge in Express Entry Canada, we make migrating to your dream destination as seamless as possible.",
     form: { title: "Let Us Help You Migrate to Canada.", destination: "Canada" },
   },

@@ -6,7 +6,12 @@ import { APPROVALS, BLOG, BLOGS, HOME_TESTIMONIALS, PAGE } from "./queries";
 import type { Approval, CmsPage, CmsTestimonial } from "./types";
 import { blogPosts, type BlogPost } from "@/content/blogs";
 
-export const getPageContent = cache(async (path: string) => normalizePage(await cmsFetch<CmsPage>(PAGE, { path }, [cmsTag(path), "sanity:pages", "sanity:testimonials", "sanity:videos"])));
+/** Brochure PDF uploaded in Studio → Collection Settings; null when none is set or the CMS is unavailable. */
+export const getBrochureUrl = cache(async () => {
+  const url = await cmsFetch<string | null>(`*[_type == "siteContent" && _id == "siteContent"][0].brochure.asset->url`, {}, ["sanity:settings"]);
+  return typeof url === "string" && url.startsWith("https://cdn.sanity.io/files/") ? url : null;
+});
+export const getPageContent =cache(async (path: string) => normalizePage(await cmsFetch<CmsPage>(PAGE, { path }, [cmsTag(path), "sanity:pages", "sanity:testimonials", "sanity:videos"])));
 export async function getApprovals(home = false): Promise<Approval[] | null> {
   const data = await cmsFetch<{ enabled?: boolean; items: Approval[] }>(APPROVALS, { home }, ["sanity:approvals"]);
   return data?.enabled ? (data.items ?? []).filter((item) => item.image && item.alt).slice(0, home ? 5 : 100) : null;
