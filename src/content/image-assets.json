@@ -605,6 +605,12 @@
     "width": 1920,
     "height": 794
   },
+  "/images/pages/hero-new-zealand-study-visa.png": {
+    "url": "https://cdn.sanity.io/images/3zrn3yuo/production/b31b7a26df2a4e016fd7bc62444af255609d393c-2000x1330.webp",
+    "asset": "image-b31b7a26df2a4e016fd7bc62444af255609d393c-2000x1330-webp",
+    "width": 2000,
+    "height": 1330
+  },
   "/images/pages/nz-pr-benefits.png": {
     "url": "https://cdn.sanity.io/images/3zrn3yuo/production/c08f879c08739269f0cfb4db367179b24ea4a793-760x520.webp",
     "asset": "image-c08f879c08739269f0cfb4db367179b24ea4a793-760x520-webp",
@@ -616,6 +622,36 @@
     "asset": "image-d9d0085532b8043ca8852317d7763a8779b7a51a-760x748-webp",
     "width": 760,
     "height": 748
+  },
+  "/images/pages/nz-study-conclusion.png": {
+    "url": "https://cdn.sanity.io/images/3zrn3yuo/production/2f533b681fa391eafebd6785f2b60b75a08f12a2-2000x1333.webp",
+    "asset": "image-2f533b681fa391eafebd6785f2b60b75a08f12a2-2000x1333-webp",
+    "width": 2000,
+    "height": 1333
+  },
+  "/images/pages/nz-study-education.png": {
+    "url": "https://cdn.sanity.io/images/3zrn3yuo/production/5dae5a6bcc7d7e9338a62576771f11e8c359a461-2000x1331.webp",
+    "asset": "image-5dae5a6bcc7d7e9338a62576771f11e8c359a461-2000x1331-webp",
+    "width": 2000,
+    "height": 1331
+  },
+  "/images/pages/nz-study-quality.png": {
+    "url": "https://cdn.sanity.io/images/3zrn3yuo/production/1758c16b1cb69b69572cf08495c95b952ec37f3c-2000x1333.webp",
+    "asset": "image-1758c16b1cb69b69572cf08495c95b952ec37f3c-2000x1333-webp",
+    "width": 2000,
+    "height": 1333
+  },
+  "/images/pages/nz-study-requirements.png": {
+    "url": "https://cdn.sanity.io/images/3zrn3yuo/production/88aaf9384f0e97e25923f419438eff6376c80424-1280x1871.webp",
+    "asset": "image-88aaf9384f0e97e25923f419438eff6376c80424-1280x1871-webp",
+    "width": 1280,
+    "height": 1871
+  },
+  "/images/pages/nz-study-why.png": {
+    "url": "https://cdn.sanity.io/images/3zrn3yuo/production/e56afc7996dff65df02a115eb13ba1b2853f2167-1333x2000.webp",
+    "asset": "image-e56afc7996dff65df02a115eb13ba1b2853f2167-1333x2000-webp",
+    "width": 1333,
+    "height": 2000
   },
   "/images/pages/other/germany-advantages.png": {
     "url": "https://cdn.sanity.io/images/3zrn3yuo/production/386a5c44704bd355ceee1d23e1aeee110f7bb432-760x676.webp",

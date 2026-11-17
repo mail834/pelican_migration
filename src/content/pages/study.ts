@@ -247,3 +247,153 @@ export const australiaStudyVisa: PageData = {
     reviewsBlock("Australia Study Made Easy"),
   ],
 };
+
+// Figma "NewZealand_Study_Visa" (1217:22401) — same section system as Australia Study Visa, plus visa requirements.
+export const newZealandStudyVisa: PageData = {
+  slug: "new-zealand-study-visa",
+  metaTitle: "New Zealand Study Visa | Pelican Migration Consultants",
+  metaDescription:
+    "Study in New Zealand with guidance from Pelican Migration Consultants: education options, student visa requirements and application support.",
+  hero: {
+    image: "/images/pages/hero-new-zealand-study-visa.png",
+    breadcrumb: [{ label: "New Zealand", href: "/new-zealand-migration" }, { label: "New Zealand Study Visa" }],
+    title: "New Zealand\nStudy Visa",
+    titleWidth: 408,
+    tops: serviceTops,
+    text: "Transform Your Dream to Study in New Zealand with Pelican Migration Consultants Today!",
+    form: { title: "Let Us Help You Study in New Zealand.", destination: "New Zealand", variant: "study", top: 174 },
+  },
+  blocks: [
+    {
+      type: "intro",
+      bg: "white",
+      title: "Transform Your Dream of Studying in New Zealand with Pelican Migration Consultants!",
+      paragraphs: [
+        "New Zealand has become an increasingly popular destination for international students seeking quality education and valuable global exposure. With its internationally recognised qualifications, modern learning facilities, welcoming communities, and excellent quality of life, the country offers an attractive environment for students looking to advance their academic and professional goals.",
+        "Choosing to study in New Zealand can be an exciting step towards a brighter future. Whether you are planning to pursue undergraduate studies, postgraduate qualifications, vocational training, or an English language programme, New Zealand offers a variety of educational opportunities to suit different academic interests.",
+        "Pelican Migration Consultants can guide you through the New Zealand student visa process and help you explore your study options.",
+      ],
+    },
+    {
+      type: "media",
+      bg: "navy50",
+      title: "Why Should You Choose New Zealand for Higher Studies?",
+      content: [
+        "New Zealand offers an excellent combination of academic quality, practical learning, and lifestyle opportunities. Here are some reasons why international students choose New Zealand:",
+        {
+          ticks: [
+            "Globally Recognised Qualifications: New Zealand institutions offer internationally recognised qualifications that can support your academic and professional development.",
+            "Quality Education: The country is home to established universities, institutes of technology, and other approved education providers.",
+            "Work Opportunities While Studying: Eligible international students may work up to 25 hours per week during their studies and full-time during scheduled holidays, depending on their visa conditions.",
+            "Post-Study Work Opportunities: Eligible graduates may qualify for a Post Study Work Visa, depending on their qualification and other requirements.",
+            "Safe and Welcoming Environment: New Zealand offers a multicultural society and a welcoming environment for international students.",
+            "Excellent Quality of Life: Enjoy beautiful landscapes, modern cities, outdoor activities, and a balanced lifestyle while pursuing your education.",
+          ],
+        },
+        check,
+      ],
+      image: "/images/pages/nz-study-why.png",
+      imageAlt: "International students on a New Zealand campus",
+    },
+    {
+      type: "media",
+      bg: "white",
+      imageSide: "left",
+      title: "Education Systems in New Zealand",
+      content: [
+        "New Zealand offers a diverse education system designed to meet the needs of international students at different academic levels.",
+        {
+          ticks: [
+            "University Education: Students can pursue undergraduate degrees, postgraduate qualifications, master's programmes, and doctoral studies across various disciplines.",
+            "Vocational Education and Training: Institutes of technology and polytechnics offer practical, career-focused programmes designed to develop industry-relevant skills.",
+            "Private Training Establishments: Approved private education providers offer specialised courses, professional training, and vocational qualifications.",
+            "English Language Programmes: Students can improve their English proficiency through approved language courses before progressing to further academic studies.",
+          ],
+        },
+        check,
+      ],
+      image: "/images/pages/nz-study-education.png",
+      imageAlt: "Students learning in a modern classroom",
+    },
+    {
+      type: "media",
+      bg: "navy50",
+      title: "Quality of Education in New Zealand",
+      content: [
+        "New Zealand is recognised for its high educational standards, student-focused learning environment, and internationally respected qualifications. Its education providers emphasise practical learning, independent thinking, research, and industry-relevant skills.",
+        "International students can benefit from modern learning facilities, experienced educators, and opportunities to develop skills that support their future career ambitions.",
+        check,
+      ],
+      image: "/images/pages/nz-study-quality.png",
+      imageAlt: "Teacher leading an interactive class",
+    },
+    {
+      type: "media",
+      bg: "white",
+      imageSide: "left",
+      title: "New Zealand Student Visa Requirements",
+      content: [
+        "If you plan to study in New Zealand for more than three months, you will generally need an appropriate student visa.",
+        "The Fee Paying Student Visa is one of the most common options for international students. Depending on your circumstances, the general requirements include:",
+        {
+          ticks: [
+            "An offer of place from an approved New Zealand education provider.",
+            "Evidence of sufficient funds to pay tuition fees.",
+            "Proof of sufficient funds to cover living expenses (generally NZD $20,000 per year for tertiary-level studies).",
+            "Evidence of good health and character.",
+            "Genuine intentions to study in New Zealand.",
+            "Acceptable medical and travel insurance.",
+            "Evidence that you can leave New Zealand at the end of your authorised stay.",
+          ],
+        },
+        "Additional documents may be required depending on your circumstances and chosen course.",
+        check,
+      ],
+      image: "/images/pages/nz-study-requirements.png",
+      imageAlt: "Two students studying together",
+    },
+    {
+      type: "stack",
+      bg: "page",
+      els: [
+        {
+          el: "heading",
+          title: "Take the Help of Pelican Migration Consultants and Make Your Way to New Zealand!",
+          description:
+            "Planning to study abroad involves several important decisions, from selecting the right educational institution to understanding student visa requirements. Pelican Migration Consultants can help simplify the process with professional guidance and application support. Whether you are exploring opportunities in New Zealand, Australia, Canada, or Portugal, our team can help you understand your available options.",
+        },
+        { el: "line" },
+        {
+          el: "content",
+          content: [
+            { title: "Why Should You Choose Pelican?", color: "navy" },
+            {
+              ticks: [
+                "Professional Guidance: Receive personalised assistance based on your academic background, career goals, and immigration circumstances.",
+                "Application Support: Get guidance throughout the student visa application process, including documentation and application preparation.",
+                "Explore Your Study Options: Understand suitable study pathways and educational opportunities based on your profile.",
+                "Trusted Immigration Experience: Benefit from the experience of our immigration consultancy, established in 2017.",
+              ],
+            },
+          ],
+        },
+      ],
+    },
+    {
+      type: "media",
+      bg: "white",
+      imageSide: "left",
+      title: "Conclusion",
+      content: [
+        "Studying in New Zealand can be an important investment in your education and future career. With internationally recognised qualifications, practical learning opportunities, and a welcoming environment, New Zealand offers plenty of reasons to consider it for your higher studies.",
+        "Let Pelican Migration Consultants guide you through your New Zealand Student Visa journey. Contact our team today and take the first step towards achieving your international education goals!",
+        check,
+      ],
+      image: "/images/pages/nz-study-conclusion.png",
+      imageAlt: "Student holding books and giving a thumbs up",
+    },
+    videoBlock(),
+    faqBlock,
+    reviewsBlock("New Zealand Study Made Easy"),
+  ],
+};

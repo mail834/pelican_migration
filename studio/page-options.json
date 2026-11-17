@@ -65,6 +65,11 @@
     "id": "page--australia-study-visa"
   },
   {
+    "path": "/new-zealand-study-visa",
+    "title": "new zealand study visa",
+    "id": "page--new-zealand-study-visa"
+  },
+  {
     "path": "/visit-visa/usa",
     "title": "visit visa / usa",
     "id": "page--visit-visa--usa"

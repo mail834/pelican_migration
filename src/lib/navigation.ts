@@ -57,6 +57,7 @@ export const countryMenus: CountryMenu[] = [
     links: [
       { label: "Migrate to New Zealand", href: "/new-zealand-migration" },
       { label: "New Zealand PR Visa", href: "/new-zealand-pr" },
+      { label: "New Zealand Study Visa", href: "/new-zealand-study-visa" },
     ],
   },
 ];
