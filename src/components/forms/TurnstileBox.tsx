@@ -19,8 +19,8 @@ export default function TurnstileBox({ theme = "light", className = "" }: { them
   if (!TURNSTILE_SITE_KEY) return null;
   return (
     <div className={`w-full min-w-0 max-w-full ${className}`}>
-      {/* Reserves the widget's height (65px) so the form doesn't jump, and keeps Cloudflare's iframe to the form's width. */}
-      <div ref={container} data-turnstile className="min-h-[4.0625rem] w-full max-w-full overflow-hidden [&_div]:!max-w-full [&_iframe]:!w-full [&_iframe]:!max-w-full" />
+      {/* Reserves the widget's height (65px) so the form doesn't jump, and never lets the widget push the form wider. */}
+      <div ref={container} data-turnstile className="min-h-[4.0625rem] w-full max-w-full overflow-hidden" />
       {failed && <p role="alert" className="t-body4 mt-1 text-dark-300">Security check could not load. Please disable content blockers for this site or call +971 4 564 6282.</p>}
     </div>
   );

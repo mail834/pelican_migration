@@ -41,10 +41,11 @@ export function registerBox(container: HTMLElement, turnstile: Turnstile, option
   const box: Box = { widgetId: "", token: "", waiters: [], error: "" };
   boxes.set(container, box);
   box.widgetId = turnstile.render(container, {
+    // Cloudflare's "flexible" layout needs about 390px, so narrow forms use the fixed 300px box.
+    size: container.clientWidth >= 420 ? "flexible" : "normal",
     ...options,
     sitekey: TURNSTILE_SITE_KEY,
     appearance: "always",
-    size: "flexible",
     "refresh-expired": "auto",
     callback: (token: string) => { box.token = token; box.error = ""; box.waiters.splice(0).forEach((resolve) => resolve(token)); },
     "expired-callback": () => { box.token = ""; },
