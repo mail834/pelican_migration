@@ -33,6 +33,7 @@ export const testimonial = defineType({ name: "testimonial", title: "Testimonial
   defineField({ name: "kind", type: "string", options: { list: ["video", "text"], layout: "radio" }, initialValue: "video", validation: (rule) => rule.required() }),
   defineField({ name: "video", type: "reference", to: [{ type: "video" }], hidden: ({ document }) => document?.kind !== "video", validation: (rule) => rule.custom((value, context) => context.document?.kind === "video" && !value?._ref ? "Choose a video" : true) }),
   defineField({ name: "quote", type: "text", rows: 5, hidden: ({ document }) => document?.kind !== "text", validation: (rule) => rule.custom((value, context) => context.document?.kind === "text" && !value?.trim() ? "Enter the client review" : true) }),
+  defineField({ name: "role", title: "Shown under the name", description: "e.g. Successful Canada PR Applicant", type: "string", hidden: ({ document }) => document?.kind !== "text", validation: (rule) => rule.max(80) }),
   defineField({ name: "rating", type: "number", hidden: ({ document }) => document?.kind !== "text", validation: (rule) => rule.min(0).max(5) }),
   defineField({ name: "showOnHome", title: "Feature video on homepage", type: "boolean", initialValue: false, hidden: ({ document }) => document?.kind !== "video" }), order,
 ], preview: { select: { title: "name", subtitle: "kind", media: "video.poster" } } });

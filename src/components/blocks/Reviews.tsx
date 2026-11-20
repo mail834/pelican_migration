@@ -1,15 +1,11 @@
 import SectionHeading from "@/components/ui/SectionHeading";
 import Carousel from "@/components/ui/Carousel";
+import reviewsData from "@/content/reviews.json";
 
-export type Review = { rating: string; quote: string; name: string };
+export type Review = { rating: string; quote: string; name: string; role?: string };
 
-export const defaultReviews: Review[] = [
-  { rating: "4.5", quote: "“I found Pelican Migration Consultants very impressive and I will definitely recommend pelican migration to others.”", name: "Ranjan Mathew" },
-  { rating: "4.8", quote: "“The team was incredibly helpful and made the entire migration process smooth and stress-free.”", name: "Anita Kapoor" },
-  { rating: "4.7", quote: "“Professional service with clear communication throughout. Highly recommend Pelican Migration.”", name: "Michael Tan" },
-  { rating: "4.9", quote: "“Expert advice and personalized attention helped me achieve my migration goals quickly.”", name: "Sofia Hernandez" },
-  { rating: "4.6", quote: "“Reliable and efficient consultants who genuinely care about their clients' success.”", name: "James Wu" },
-];
+/** Built-in reviews, shown when the CMS is unavailable. The live list is managed in Sanity (Testimonials, kind "text"). */
+export const defaultReviews: Review[] = reviewsData.map((r) => ({ rating: "", name: r.name, role: r.role, quote: `“${r.quote}”` }));
 
 /** Orange reviews carousel (Figma "Frame 120", Review cards 382×255). */
 export default function Reviews({ title, reviews = defaultReviews }: { title: string; reviews?: Review[] }) {
@@ -43,7 +39,10 @@ export function ReviewCard({ review: r, className = "" }: { review: Review; clas
       </div>
       <figcaption className="flex items-center gap-2">
         <span className="t-label3 flex size-[2.125rem] items-center justify-center rounded-full bg-navy-300 font-medium text-light-50">{r.name[0]}</span>
-        <span className="t-label2 font-semibold text-dark-300">{r.name}</span>
+        <span className="flex flex-col">
+          <span className="t-label2 font-semibold text-dark-300">{r.name}</span>
+          {r.role && <span className="t-body4 text-dark-100">{r.role}</span>}
+        </span>
       </figcaption>
     </figure>
   );
