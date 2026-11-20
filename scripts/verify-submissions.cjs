@@ -4,8 +4,10 @@ const fs = require('fs');
 const ts = require('typescript');
 const Module = require('module');
 const path = require('path');
+require.extensions['.ts'] = (mod, file) => mod._compile(ts.transpileModule(fs.readFileSync(file, 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText, file);
 const filename = path.resolve('src/lib/submissions.ts');
 const compiled = new Module(filename, module);
+compiled.filename = filename; compiled.paths = Module._nodeModulePaths(path.dirname(filename));
 compiled._compile(ts.transpileModule(fs.readFileSync(filename, 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText, filename);
 const { deliverEnquiry, deliverNewsletter, parseSubmission } = compiled.exports;
 const saved = { ...process.env };
@@ -23,7 +25,19 @@ const enquiry = { name: 'Test Applicant', email: 'test@example.com', submissionI
   let outbound;
   assert.equal((await deliverEnquiry(enquiry, async (message) => { outbound = message; return { messageId: '<test@example.com>', rejected: [] }; })).status, 200);
   assert.equal(outbound.to, 'team@example.com'); assert.equal(outbound.from, 'Pelican <website@example.com>'); assert.equal(outbound.replyTo, 'test@example.com');
-  assert.match(outbound.text, /Destination: Canada/); assert.equal(outbound.subject, 'Migration assessment: Test Applicant');
+  assert.match(outbound.text, /Destination: Canada/); assert.equal(outbound.subject, 'New lead: Test Applicant · Eligibility check · Canada');
+  assert.match(outbound.html, /<h1[^>]*>Test Applicant<\/h1>/); assert.match(outbound.html, /Reference: unit-test-submission-123/);
+
+  // Formatting: contact fields are grouped, phone gets call/WhatsApp links, and visitor input can't inject markup or fake lines.
+  const contactLead = { name: 'Asha <b>K</b>', email: 'asha@example.com', page: '/contact-us', submissionId: 'unit-test-format-000001', fields: [
+    { label: 'name', value: 'Asha <b>K</b>' }, { label: 'email', value: 'asha@example.com' }, { label: 'phoneCountryCode', value: 'India (+91)' }, { label: 'phone', value: '95625 68046' },
+    { label: 'nationality', value: 'India' }, { label: 'message', value: 'Hello\n<script>alert(1)</script>' }, { label: 'jobTitle', value: 'Nurse' }, { label: 'x\nEmail: ceo@evil.example', value: 'forged' }, { label: 'source', value: '' } ] };
+  assert.equal((await deliverEnquiry(contactLead, async (message) => { outbound = message; return { messageId: '<f@example.com>', rejected: [] }; })).status, 200);
+  assert.equal(outbound.subject, 'New lead: Asha <b>K</b> · Contact enquiry');
+  assert.ok(!outbound.html.includes('<script>') && !outbound.html.includes('<b>K</b>')); assert.match(outbound.html, /&lt;script&gt;/);
+  assert.match(outbound.html, /href="tel:\+919562568046"/); assert.match(outbound.html, /href="https:\/\/wa\.me\/919562568046"/);
+  assert.match(outbound.text, /Phone: {7}\+91 95625 68046/); assert.match(outbound.text, /Job title: Nurse/);
+  assert.ok(!/^Email: ceo@evil/m.test(outbound.text), 'label newline forged a header line'); assert.ok(!/How they found us/.test(outbound.text), 'empty field shown');
 
   // Failures return 502 and log one structured event with no personal data.
   const logged = []; const realError = console.error; console.error = (line) => logged.push(line);

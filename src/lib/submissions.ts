@@ -1,4 +1,5 @@
 /** Server-side validation and delivery. Never import this module into client UI. */
+import { renderLeadEmail } from "./enquiry-email";
 const EMAIL = /^[^\s@<>\r\n]+@[^\s@<>\r\n]+\.[^\s@<>\r\n]+$/;
 const MAX_BODY = 65536;
 const RATE_LIMIT = 10;
@@ -108,7 +109,7 @@ export async function parseSubmission(request: Request, transport: typeof fetch 
   return fields;
 }
 
-export type EnquiryMessage = { from: string; to: string; replyTo: string; subject: string; text: string };
+export type EnquiryMessage = { from: string; to: string; replyTo: string; subject: string; text: string; html: string };
 export type SendMail = (message: EnquiryMessage) => Promise<{ messageId?: string; rejected?: unknown[] }>;
 
 const SMTP_TIMEOUT = 10_000;
@@ -190,8 +191,7 @@ export async function deliverEnquiry(data: Record<string, unknown>, send: SendMa
   if (await claimSubmission(id, transport) === "duplicate") return Response.json({ ok: true });
   const message: EnquiryMessage = {
     from, to, replyTo: email,
-    subject: `${data.kind === "eligibility" ? "Migration assessment" : "Website enquiry"}: ${name.replace(/[\r\n]/g, " ")}`,
-    text: [`Name: ${name}`, `Email: ${email}`, `Page: ${typeof data.page === "string" ? data.page.slice(0, 500) : "Website"}`, "", ...fields.map((field) => `${field.label}: ${field.value}`)].join("\n"),
+    ...renderLeadEmail({ kind: data.kind, name, email, page: typeof data.page === "string" ? data.page.slice(0, 500) : "/", fields, id }),
   };
   try {
     const accepted = await send(message);
