@@ -51,7 +51,7 @@ export default function AssessmentPopup() {
         role="dialog"
         aria-modal="true"
         aria-labelledby="popup-title"
-        className="max-h-full w-full max-w-[24rem] overflow-y-auto rounded-sm bg-light-50 p-5 drop-shadow-[0_20px_15px_rgba(0,0,0,0.1)]"
+        className="max-h-full w-full max-w-[24rem] overflow-x-hidden overflow-y-auto rounded-sm bg-light-50 p-5 drop-shadow-[0_20px_15px_rgba(0,0,0,0.1)]"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex flex-col items-center gap-5">
