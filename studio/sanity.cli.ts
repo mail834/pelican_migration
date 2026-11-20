@@ -9,6 +9,7 @@ export default defineCliConfig({
     projectId: process.env.SANITY_STUDIO_PROJECT_ID ?? process.env.SANITY_PROJECT_ID,
     dataset: process.env.SANITY_STUDIO_DATASET ?? process.env.SANITY_DATASET ?? "production",
   },
-  // Set after the first deploy to skip the hostname prompt, e.g. "pelican-immigration".
-  ...(process.env.SANITY_STUDIO_HOSTNAME ? { studioHost: process.env.SANITY_STUDIO_HOSTNAME } : {}),
+  // Hosted at https://pelican-migration.sanity.studio (first deployed 2026-11-20).
+  studioHost: process.env.SANITY_STUDIO_HOSTNAME ?? "pelican-migration",
+  deployment: { appId: "vgqmjmddq4ak991ndmhnba35" },
 });
