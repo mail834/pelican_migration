@@ -59,6 +59,81 @@ function splitFields(fields: LeadField[]) {
 
 const dubaiTime = (date: Date) => new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Dubai", dateStyle: "medium", timeStyle: "short" }).format(date) + " (Dubai)";
 
+const OFFICE = {
+  phone: "+971 4 564 6282", tel: "+97145646282", whatsapp: "https://wa.me/97145646282",
+  hours: "Monday to Saturday, 10 AM – 7 PM (UAE time)",
+  address: "Office 1603, Iris Bay Tower, Al Mustaqbal St, Business Bay, Dubai",
+};
+
+/** First name for the greeting, only when it looks like a name, so the form can't be used to mail arbitrary text or links. */
+function greetingName(name: string) {
+  const first = oneLine(name).split(" ")[0] ?? "";
+  return /^[\p{L}][\p{L}'’-]{0,39}$/u.test(first) ? first : "";
+}
+
+/**
+ * Acknowledgement sent to the visitor after the team's copy is delivered.
+ * Deliberately echoes none of the submitted answers or message.
+ */
+export function renderAcknowledgementEmail(lead: Pick<Lead, "kind" | "name">) {
+  const first = greetingName(lead.name);
+  const hello = first ? `Dear ${first},` : "Hello,";
+  const what = lead.kind === "eligibility" ? "eligibility assessment" : "enquiry";
+  const site = (process.env.SITE_ORIGIN || "https://pelicanmigration.ae").replace(/\/$/, "");
+  const subject = `We've received your ${what} | Pelican Migration Consultants`;
+
+  const text = [
+    hello,
+    "",
+    `Thank you for contacting Pelican Migration Consultants. We've received your ${what}, and one of our consultants will review it and contact you shortly.`,
+    "",
+    `Our team works ${OFFICE.hours}. If you need us sooner, call ${OFFICE.phone} or message us on WhatsApp: ${OFFICE.whatsapp}`,
+    "",
+    "You can reply to this email if you'd like to add anything.",
+    "",
+    "Kind regards,",
+    "Pelican Migration Consultants",
+    "CICC licensed immigration consultancy (RCIC #R507572)",
+    OFFICE.address,
+    site,
+    "",
+    "You're receiving this because this email address was entered in a form on our website. If that wasn't you, you can ignore this message.",
+  ].join("\n");
+
+  const html = `<!doctype html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escape(subject)}</title></head>
+<body style="margin:0;padding:0;background:${BRAND.soft};font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:${BRAND.ink}">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${BRAND.soft};padding:24px 12px"><tr><td align="center">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;background:#ffffff;border-radius:10px;overflow:hidden;border:1px solid ${BRAND.line}">
+  <tr><td style="background:${BRAND.navy};padding:20px 24px">
+    <div style="color:#ffffff;font-size:18px;font-weight:700;letter-spacing:.04em">PELICAN</div>
+    <div style="color:#cfe0ec;font-size:11px;letter-spacing:.12em;text-transform:uppercase">Migration Consultants</div>
+  </td></tr>
+  <tr><td style="padding:28px 24px 8px;font-size:15px;line-height:1.6">
+    <h1 style="margin:0 0 16px;font-size:22px;line-height:1.3;color:${BRAND.ink}">Thank you, we've received your ${what}</h1>
+    <p style="margin:0 0 14px">${escape(hello)}</p>
+    <p style="margin:0 0 14px">Thank you for contacting Pelican Migration Consultants. One of our consultants will review your details and contact you shortly.</p>
+    <p style="margin:0 0 20px">Our team works ${escape(OFFICE.hours)}. If you need us sooner, call or message us:</p>
+    <a href="tel:${OFFICE.tel}" style="display:inline-block;margin:0 8px 8px 0;padding:10px 18px;border-radius:6px;background:${BRAND.orange};color:#ffffff;font-weight:600;font-size:14px;text-decoration:none">Call ${escape(OFFICE.phone)}</a>
+    <a href="${OFFICE.whatsapp}" style="display:inline-block;margin:0 8px 8px 0;padding:10px 18px;border-radius:6px;background:#25A244;color:#ffffff;font-weight:600;font-size:14px;text-decoration:none">WhatsApp us</a>
+    <p style="margin:20px 0 0">You can reply to this email if you'd like to add anything.</p>
+    <p style="margin:20px 0 0">Kind regards,<br><strong>Pelican Migration Consultants</strong></p>
+  </td></tr>
+  <tr><td style="padding:24px">
+    <div style="border-top:1px solid ${BRAND.line};padding-top:14px;color:${BRAND.muted};font-size:12px;line-height:1.6">
+      CICC licensed immigration consultancy (RCIC #R507572)<br>
+      ${escape(OFFICE.address)}<br>
+      <a href="${escape(site)}" style="color:${BRAND.navy}">${escape(site.replace(/^https?:\/\//, ""))}</a><br><br>
+      You're receiving this because this email address was entered in a form on our website. If that wasn't you, you can ignore this message.
+    </div>
+  </td></tr>
+</table>
+</td></tr></table>
+</body></html>`;
+
+  return { subject, text, html };
+}
+
 export function renderLeadEmail(lead: Lead) {
   const name = oneLine(lead.name);
   const email = oneLine(lead.email);
