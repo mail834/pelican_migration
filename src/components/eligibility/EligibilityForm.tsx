@@ -1,6 +1,7 @@
 "use client";
 
 import { sendEnquiry } from "@/components/forms/useEnquiry";
+import TurnstileBox from "@/components/forms/TurnstileBox";
 import Link from "next/link";
 import { useRef, useState } from "react";
 import DetailedAssessmentFields from "./DetailedAssessmentFields";
@@ -18,6 +19,7 @@ export default function EligibilityForm({ initialCountry, lockCountry = false }:
   const [deliveryError, setDeliveryError] = useState("");
   const [delivered, setDelivered] = useState(false);
   const submissionId = useRef("");
+  const review = useRef<HTMLElement>(null);
   const [entries, setEntries] = useState<Entry[]>([]);
 
 
@@ -67,15 +69,16 @@ export default function EligibilityForm({ initialCountry, lockCountry = false }:
           <ConfidentialNote />
         </form>
       {step === 3 && (
-        <section aria-live="polite" className="flex flex-col gap-5">
+        <section ref={review} aria-live="polite" className="flex flex-col gap-5">
           <div><p className="t-body3 mb-2 font-semibold text-orange-400">YOUR ASSESSMENT</p><h2 className="t-h2 font-semibold text-dark-300">Your profile is ready to review</h2><p className="t-body2 mt-3 text-dark-100">Check your details, then send your assessment to our team. A consultant will review the requirements for your chosen pathway.</p></div>
           <div className="rounded-sm bg-navy-50 p-4"><p className="t-h3 font-medium text-navy-300">{country}</p><p className="t-body2 mt-1 text-dark-200">{service}</p></div>
           <dl className="divide-y divide-grey-50">{entries.map((entry, index) => <div key={index} className="grid grid-cols-2 gap-4 py-3"><dt className="t-body3 text-dark-100">{entry.label}</dt><dd className="t-body3 break-words font-medium text-dark-300">{entry.value}</dd></div>)}</dl>
+          {!delivered && <TurnstileBox />}
           {delivered ? <p role="status" className="t-body1 rounded-sm bg-navy-50 p-5 text-navy-300">Thank you. Your assessment has been sent to our team for review.</p> : <Button type="button" block disabled={deliveryPending} onClick={async () => {
             if (deliveryPending) return;
             setDeliveryPending(true); setDeliveryError("");
             submissionId.current ||= crypto.randomUUID();
-            try { await sendEnquiry([{ label: "Destination", value: country }, { label: "Service", value: service }, ...entries], "eligibility", submissionId.current); setDelivered(true); }
+            try { await sendEnquiry([{ label: "Destination", value: country }, { label: "Service", value: service }, ...entries], "eligibility", submissionId.current, "", review.current); setDelivered(true); }
             catch (problem) { setDeliveryError(problem instanceof Error ? problem.message : "Unable to send your assessment."); }
             finally { setDeliveryPending(false); }
           }}>{deliveryPending ? "Sending…" : "Send My Assessment"}</Button>}

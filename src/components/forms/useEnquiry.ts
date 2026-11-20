@@ -2,10 +2,10 @@
 import { useRef, useState, type FormEvent } from "react";
 import { getTurnstileToken } from "./turnstile";
 
-export async function sendEnquiry(fields: { label: string; value: string }[], kind: string, submissionId: string, website = "") {
+export async function sendEnquiry(fields: { label: string; value: string }[], kind: string, submissionId: string, website = "", scope: HTMLElement | null = null) {
   const email = fields.find((entry) => /email/i.test(entry.label))?.value ?? "";
   const name = fields.find((entry) => /full.?name|^name$|first.?name/i.test(entry.label))?.value ?? "";
-  const turnstileToken = await getTurnstileToken();
+  const turnstileToken = await getTurnstileToken(scope);
   const response = await fetch("/api/enquiries", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ kind, email, name, fields, submissionId, website, turnstileToken, page: window.location.pathname }) });
   const result = await response.json();
   if (!response.ok) throw new Error(result.error ?? "Unable to send your enquiry. Please try again.");
@@ -21,10 +21,10 @@ export default function useEnquiry() {
     if (pending) return;
     const form = event.currentTarget;
     const data = new FormData(form);
-    const fields = Array.from(data.entries()).filter(([name]) => name !== "website").map(([name, value]) => ({ label: name, value: String(value) }));
+    const fields = Array.from(data.entries()).filter(([name]) => name !== "website" && name !== "cf-turnstile-response").map(([name, value]) => ({ label: name, value: String(value) }));
     setPending(true); setError("");
     submissionId.current ||= crypto.randomUUID();
-    try { await sendEnquiry(fields, "enquiry", submissionId.current, String(data.get("website") ?? "")); setSent(true); }
+    try { await sendEnquiry(fields, "enquiry", submissionId.current, String(data.get("website") ?? ""), form); setSent(true); }
     catch (problem) { setError(problem instanceof Error ? problem.message : "Unable to send. Please try again."); }
     finally { setPending(false); }
   }
