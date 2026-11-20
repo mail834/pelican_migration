@@ -1,6 +1,7 @@
 "use client";
 
 import useEnquiry from "@/components/forms/useEnquiry";
+import TurnstileBox from "@/components/forms/TurnstileBox";
 import SubmissionStatus from "@/components/forms/SubmissionStatus";
 
 
@@ -43,6 +44,7 @@ export default function AssessmentForm() {
               <SelectInput name="source" placeholder="How did you hear about us?" options={referralSources} />
             </div>
             <SubmissionStatus pending={pending} error={error} />
+            <TurnstileBox />
             <Button type="submit" block disabled={pending}>
               Get Free Assessment
             </Button>

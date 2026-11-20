@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { getTurnstileToken } from "@/components/forms/turnstile";
+import TurnstileBox from "@/components/forms/TurnstileBox";
 
 export default function NewsletterForm() {
   const [done, setDone] = useState(false);
@@ -8,10 +9,11 @@ export default function NewsletterForm() {
   const [error, setError] = useState("");
   return <form className="flex max-w-[24rem] flex-col" onSubmit={async (event) => {
     event.preventDefault(); if (pending) return;
-    const data = new FormData(event.currentTarget);
+    const form = event.currentTarget;
+    const data = new FormData(form);
     setPending(true); setError("");
     try {
-      const turnstileToken = await getTurnstileToken();
+      const turnstileToken = await getTurnstileToken(form);
       const response = await fetch("/api/newsletter", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: data.get("email"), website: data.get("website"), consent: data.get("consent") === "on", turnstileToken }) });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error ?? "Unable to process your subscription.");
@@ -26,6 +28,7 @@ export default function NewsletterForm() {
         <button type="submit" disabled={pending} className="t-body4 flex h-full cursor-pointer items-center rounded-r-sm bg-orange-300 px-5 text-light-50 disabled:opacity-60">{pending ? "Sending…" : "Subscribe"}</button>
       </div>
       <label className="t-body4 mt-3 flex items-start gap-2 text-light-50"><input type="checkbox" name="consent" required className="mt-0.5 shrink-0 accent-orange-300" />I agree to receive the Pelican newsletter by email. I can unsubscribe at any time.</label>
+      <TurnstileBox theme="dark" className="mt-3" />
       <div className="hidden" aria-hidden="true"><label>Leave empty<input name="website" tabIndex={-1} autoComplete="off" /></label></div>
     </>}
     {error && <p role="alert" className="t-body3 mt-3 text-light-50">{error}</p>}

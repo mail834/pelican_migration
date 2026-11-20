@@ -1,6 +1,7 @@
 "use client";
 
 import useEnquiry from "@/components/forms/useEnquiry";
+import TurnstileBox from "@/components/forms/TurnstileBox";
 import SubmissionStatus from "@/components/forms/SubmissionStatus";
 
 
@@ -26,6 +27,7 @@ export default function HeroForm({ title, destination, optionsKey = "", variant 
           <div className="flex w-full flex-col gap-5">
             <AssessmentFields destination={destination} optionsKey={optionsKey} variant={variant} />
             <SubmissionStatus pending={pending} error={error} />
+            <TurnstileBox />
             <Button type="submit" block disabled={pending}>
               Get Free Assessment
             </Button>
