@@ -49,17 +49,12 @@ export function Breadcrumb({ items, className = "" }: { items: Crumb[]; classNam
   );
 }
 
-/** Figma "CICC CCIC Glassmorphism Emblem Banner" — 307×83, radius 19, source cropped at Figma's insets. */
+/** Original CICC logo (white background) with the "We are CICC Licensed" caption. */
 export function CiccBadge({ className = "" }: { className?: string }) {
   return (
-    <div className={`relative aspect-[307/83] w-[19.1875rem] max-w-full overflow-hidden rounded-[1.1875rem] ${className}`}>
-      <img
-        alt="CICC licensed — College of Immigration and Citizenship Consultants"
-        src={imageUrl("/images/cicc-emblem.png", 720)}
-        width={2172}
-        height={724}
-        className="absolute top-[-14.18%] left-[-3.03%] h-[130.6%] w-[105.93%] max-w-none"
-      />
+    <div className={`flex w-[11.25rem] flex-col items-center ${className}`}>
+      <img alt="CICC licensed" src={imageUrl("/images/cicc-badge.png")} width={174} height={57} className="h-[3.5625rem] w-[10.875rem]" />
+      <p className="t-body2 w-full font-medium text-light-50">We are CICC Licensed</p>
     </div>
   );
 }
