@@ -1,5 +1,5 @@
 /** Server-side validation and delivery. Never import this module into client UI. */
-import { renderLeadEmail } from "./enquiry-email";
+import { renderAcknowledgementEmail, renderLeadEmail } from "./enquiry-email";
 const EMAIL = /^[^\s@<>\r\n]+@[^\s@<>\r\n]+\.[^\s@<>\r\n]+$/;
 const MAX_BODY = 65536;
 const RATE_LIMIT = 10;
@@ -174,7 +174,21 @@ function logDeliveryFailure(stage: string, problem: unknown, kind: unknown) {
   }));
 }
 
-export async function deliverEnquiry(data: Record<string, unknown>, send: SendMail = smtpSend, transport: typeof fetch = fetch) {
+/** Runs work after the response is sent (the route passes Next's `after`). Defaults to running it inline. */
+export type Schedule = (task: () => Promise<void>) => void | Promise<void>;
+
+/** Acknowledgement to the visitor. On by default; set ENQUIRY_ACKNOWLEDGEMENT=off to disable. Failures are logged, never shown. */
+async function acknowledge(send: SendMail, from: string, replyTo: string, visitor: string, kind: unknown, name: string) {
+  if (process.env.ENQUIRY_ACKNOWLEDGEMENT?.trim().toLowerCase() === "off") return;
+  try {
+    const result = await send({ from, to: visitor, replyTo, ...renderAcknowledgementEmail({ kind, name }) });
+    if (!result.messageId || result.rejected?.length) throw Object.assign(new Error("recipient rejected"), { code: "EREJECTED" });
+  } catch (problem) {
+    logDeliveryFailure("acknowledgement", problem, kind);
+  }
+}
+
+export async function deliverEnquiry(data: Record<string, unknown>, send: SendMail = smtpSend, transport: typeof fetch = fetch, schedule: Schedule = (task) => task()) {
   const email = typeof data.email === "string" ? data.email.trim() : "";
   const name = typeof data.name === "string" ? data.name.trim() : "";
   if (!EMAIL.test(email) || email.length > 254 || !name || name.length > 160) return json("Please enter your name and a valid email address.", 400);
@@ -196,6 +210,7 @@ export async function deliverEnquiry(data: Record<string, unknown>, send: SendMa
   try {
     const accepted = await send(message);
     if (!accepted.messageId || accepted.rejected?.length) throw Object.assign(new Error("recipient rejected"), { code: "EREJECTED" });
+    await schedule(() => acknowledge(send, from, to, email, data.kind, name));
     return Response.json({ ok: true });
   } catch (problem) {
     logDeliveryFailure("send", problem, data.kind);

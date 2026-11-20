@@ -21,7 +21,7 @@ const enquiry = { name: 'Test Applicant', email: 'test@example.com', submissionI
   // SMTP settings present but sender/recipient missing: still unavailable, nothing sent.
   process.env.SMTP_HOST = 'smtp.example.com'; process.env.SMTP_USER = 'website@example.com'; process.env.SMTP_PASS = 'abcd efgh ijkl mnop';
   assert.equal((await deliverEnquiry(enquiry)).status, 503);
-  process.env.ENQUIRY_FROM_EMAIL = 'Pelican <website@example.com>'; process.env.ENQUIRY_TO_EMAIL = 'team@example.com';
+  process.env.ENQUIRY_FROM_EMAIL = 'Pelican <website@example.com>'; process.env.ENQUIRY_TO_EMAIL = 'team@example.com'; process.env.ENQUIRY_ACKNOWLEDGEMENT = 'off'; // Tested separately below.
   let outbound;
   assert.equal((await deliverEnquiry(enquiry, async (message) => { outbound = message; return { messageId: '<test@example.com>', rejected: [] }; })).status, 200);
   assert.equal(outbound.to, 'team@example.com'); assert.equal(outbound.from, 'Pelican <website@example.com>'); assert.equal(outbound.replyTo, 'test@example.com');
@@ -70,6 +70,36 @@ const enquiry = { name: 'Test Applicant', email: 'test@example.com', submissionI
   try { assert.equal((await deliverEnquiry({ ...enquiry, submissionId: 'unit-test-outage-000001' }, ok, async () => { throw new Error('down'); })).status, 200); } finally { console.warn = realWarn; }
   assert.equal(sends, 3);
   delete process.env.UPSTASH_REDIS_REST_URL; delete process.env.UPSTASH_REDIS_REST_TOKEN;
+
+  // Acknowledgement: sent to the visitor after the team copy, from the site address with replies going to the team.
+  // It echoes none of the submitted text, the greeting only uses a plausible first name, and its failure never fails the lead.
+  delete process.env.ENQUIRY_ACKNOWLEDGEMENT;
+  const mail = []; const record = async (message) => { mail.push(message); return { messageId: `<${mail.length}@example.com>`, rejected: [] }; };
+  const spammy = { ...enquiry, submissionId: 'unit-test-ack-0000001', name: 'http://spam.example Bob', fields: [{ label: 'message', value: 'BUY CHEAP http://spam.example' }] };
+  assert.equal((await deliverEnquiry(spammy, record)).status, 200);
+  assert.equal(mail.length, 2); const [team, ack] = mail;
+  assert.equal(team.to, 'team@example.com'); assert.equal(ack.to, 'test@example.com');
+  assert.equal(ack.from, 'Pelican <website@example.com>'); assert.equal(ack.replyTo, 'team@example.com');
+  assert.match(ack.subject, /eligibility assessment/); assert.match(ack.text, /^Hello,/);
+  for (const part of [ack.text, ack.html, ack.subject]) assert.ok(!part.includes('spam.example'), 'acknowledgement echoed visitor text');
+  mail.length = 0;
+  assert.equal((await deliverEnquiry({ ...enquiry, submissionId: 'unit-test-ack-0000002', kind: 'enquiry', name: 'Priya Sharma' }, record)).status, 200);
+  assert.match(mail[1].text, /^Dear Priya,/); assert.match(mail[1].subject, /received your enquiry/);
+  // Team copy fails: no acknowledgement. Acknowledgement fails: the visitor still gets success, and one log line is written.
+  mail.length = 0;
+  console.error = () => {};
+  try { assert.equal((await deliverEnquiry({ ...enquiry, submissionId: 'unit-test-ack-0000003' }, async (m) => { mail.push(m); throw new Error('down'); })).status, 502); } finally { console.error = realError; }
+  assert.equal(mail.length, 1);
+  const ackLogs = []; console.error = (line) => ackLogs.push(line);
+  let call = 0;
+  try { assert.equal((await deliverEnquiry({ ...enquiry, submissionId: 'unit-test-ack-0000004' }, async () => { call += 1; if (call === 2) throw Object.assign(new Error('mailbox full'), { code: 'EENVELOPE', responseCode: 552 }); return { messageId: '<ok@example.com>', rejected: [] }; })).status, 200); } finally { console.error = realError; }
+  assert.equal(ackLogs.length, 1); assert.equal(JSON.parse(ackLogs[0]).stage, 'acknowledgement');
+  // Scheduled after the response when a scheduler is supplied (the route passes Next's after()).
+  let deferred; mail.length = 0;
+  assert.equal((await deliverEnquiry({ ...enquiry, submissionId: 'unit-test-ack-0000005' }, record, fetch, (task) => { deferred = task; })).status, 200);
+  assert.equal(mail.length, 1); await deferred(); assert.equal(mail.length, 2);
+  process.env.ENQUIRY_ACKNOWLEDGEMENT = 'off'; mail.length = 0;
+  assert.equal((await deliverEnquiry({ ...enquiry, submissionId: 'unit-test-ack-0000006' }, record)).status, 200); assert.equal(mail.length, 1);
   process.env.NEWSLETTER_WEBHOOK_URL = 'https://mailing.example.com/subscribe'; process.env.NEWSLETTER_WEBHOOK_SECRET = 'test-secret';
   assert.equal((await deliverNewsletter({ email: 'test@example.com', consent: true }, async (url, options) => { outbound = { url, options }; return new Response(null, { status: 204 }); })).status, 200);
   assert.equal(outbound.options.headers.Authorization, 'Bearer test-secret'); assert.equal(JSON.parse(outbound.options.body).consent, true);
