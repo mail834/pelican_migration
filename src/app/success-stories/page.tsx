@@ -31,7 +31,7 @@ export default async function SuccessStoriesPage() {
         {!content ? <StoryTabs /> : content.testimonialsEnabled && (
           <StoryTabs
             videos={(content.testimonials ?? []).flatMap((item) => (item.kind === "video" && item.video ? [{ ...item.video, name: item.name }] : []))}
-            reviews={(content.testimonials ?? []).flatMap((item) => (item.kind === "text" ? [{ name: item.name, quote: item.quote ?? "", rating: item.rating ?? "" }] : []))}
+            reviews={(content.testimonials ?? []).flatMap((item) => (item.kind === "text" ? [{ name: item.name, role: item.role, quote: item.quote ?? "", rating: item.rating ?? "" }] : []))}
           />
         )}
       </Section>

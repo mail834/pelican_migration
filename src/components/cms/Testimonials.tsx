@@ -17,7 +17,7 @@ export default function CmsTestimonials({ items, title = "What Our Clients Say" 
         <Carousel label="testimonials" gapPx={24}>
           {items.map((item) =>
             item.kind === "text" ? (
-              <ReviewCard key={item.id} review={{ name: item.name, quote: item.quote ?? "", rating: item.rating ?? "" }} className="w-[85vw] max-w-[23.875rem] shrink-0 snap-start sm:w-[23.875rem]" />
+              <ReviewCard key={item.id} review={{ name: item.name, role: item.role, quote: item.quote ?? "", rating: item.rating ?? "" }} className="w-[85vw] max-w-[23.875rem] shrink-0 snap-start sm:w-[23.875rem]" />
             ) : item.video ? (
               <TestimonialVideoCard key={item.id} video={item.video} title={item.name} sizes="(min-width:640px) 500px, 85vw" className="w-[85vw] max-w-[31.25rem] shrink-0 snap-start sm:w-[31.25rem]" />
             ) : null,
