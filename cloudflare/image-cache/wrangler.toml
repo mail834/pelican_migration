@@ -1,0 +1,8 @@
+# Cloudflare Worker that caches Sanity images at the edge. Deploy: `npx wrangler deploy` from this folder.
+name = "pelican-image-cache"
+main = "worker.js"
+compatibility_date = "2026-11-01"
+workers_dev = false
+
+# Cloudflare creates the DNS record for this hostname on deploy.
+routes = [{ pattern = "img.pelicanmigration.ae", custom_domain = true }]
