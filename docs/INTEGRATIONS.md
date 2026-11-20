@@ -2,14 +2,22 @@
 
 The code is integrated; delivery requires the server settings below. Secrets must be supplied through `.env.local` in development or the hosting platform's environment settings. Never use `NEXT_PUBLIC_` for these keys. `.env.example` contains no credentials.
 
-## Enquiries and eligibility: Resend
+## Enquiries and eligibility: SMTP (Google Workspace)
 
-1. Verify the sending domain in Resend and create a sending API key.
-2. Set `RESEND_API_KEY`, `ENQUIRY_FROM_EMAIL` (an address on that verified domain), and `ENQUIRY_TO_EMAIL` (Pelican's receiving inbox).
+Enquiries are sent with Nodemailer over SMTP. `pelicanmigration.com` mail is hosted by Google Workspace, and its SPF, DKIM and DMARC records are already published, so no DNS changes are needed.
+
+1. Sign in as the sending mailbox (`mail@pelicanmigration.com`), turn on 2-Step Verification, and create an App Password at myaccount.google.com/apppasswords. If the page is unavailable, a Workspace admin must allow App Passwords.
+2. Set `SMTP_HOST=smtp.gmail.com`, `SMTP_PORT=465`, `SMTP_USER` (the mailbox), `SMTP_PASS` (the App Password; spaces are ignored), `ENQUIRY_FROM_EMAIL` (the mailbox, or a "Send mail as" alias) and `ENQUIRY_TO_EMAIL` (Pelican's receiving inbox).
 3. Set `SITE_ORIGIN` to the public website origin if the host runs behind a reverse proxy with a different internal origin.
-4. Submit a controlled test from the deployed website and confirm receipt in the inbox and Resend dashboard.
+4. Submit a controlled test from the deployed website and confirm receipt in the inbox. The sent copy also appears in the mailbox's Sent folder.
 
-`POST /api/enquiries` accepts `name`, `email`, `kind`, `page`, `submissionId`, and `fields: [{ label, value }]`. Public forms use this endpoint. The receiving address is server-controlled; user email is used only as Reply-To. Messages are plain text. A Resend message ID is required before the UI shows success. Retries reuse an idempotency key. Provider acceptance is not proof of inbox delivery; monitor Resend delivery/bounce events operationally.
+Port 465 uses TLS from the start, and 587 uses STARTTLS. Port 25 is blocked on Vercel. Each connection times out after 10 seconds. Google Workspace allows about 2,000 messages per user per day.
+
+`POST /api/enquiries` accepts `name`, `email`, `kind`, `page`, `submissionId`, and `fields: [{ label, value }]`. Public forms use this endpoint. The receiving address is server-controlled; the visitor's email is used only as Reply-To. Messages are plain text. The UI shows success only after the SMTP server accepts the message for the recipient.
+
+SMTP has no idempotency key, so the server claims each `submissionId` in Upstash Redis for 24 hours, and a double-click or retry sends one email. A failed send releases the claim, so the visitor can retry. Without Redis, delivery still works, just without duplicate protection.
+
+Every failed send logs one line, `{"event":"enquiry_delivery_failed","provider":"smtp","code":…,"responseCode":…}`, with no names, emails or field values. `EAUTH`/535 means a wrong or revoked App Password; `ESOCKET`/`ETIMEDOUT` means a connection problem. Vercel Hobby keeps runtime logs for about an hour, so search for this event soon after a reported problem.
 
 The optional marketing preferences in the detailed assessment are included in its email for the team to process; they do not automatically enrol the applicant in a mailing list. Newsletter enrolment is a separate explicit request.
 
