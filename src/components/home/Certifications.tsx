@@ -8,16 +8,16 @@ export default function Certifications() {
         <p className="t-body1 font-medium whitespace-nowrap text-dark-200">We are Certified by :</p>
         <div className="flex flex-wrap items-center justify-center gap-x-10 gap-y-6 lg:flex-nowrap lg:gap-[4.5rem]">
           <div className="relative h-[3.3125rem] w-[18.5625rem] max-w-full shrink-0">
-            <img alt="Khaleej Times" src={imageUrl("/images/cert-khaleej-times.png")} className="absolute inset-0 size-full max-w-none object-cover" />
+            <img alt="Khaleej Times" src={imageUrl("/images/cert-khaleej-times.png", 600)} loading="lazy" decoding="async" className="absolute inset-0 size-full max-w-none object-cover" />
           </div>
           <div className="relative h-[3.3125rem] w-[7.625rem] shrink-0 overflow-hidden" role="img" aria-label="idp">
-            <img alt="" src={imageUrl("/images/cert-idp-ielts.png")} className="absolute top-[-23.49%] left-0 h-[146.99%] w-[266.41%] max-w-none" />
+            <img alt="" src={imageUrl("/images/cert-idp-ielts.png", 700)} loading="lazy" decoding="async" className="absolute top-[-23.49%] left-0 h-[146.99%] w-[266.41%] max-w-none" />
           </div>
           <div className="relative h-[3.0625rem] w-[9.0625rem] shrink-0 overflow-hidden" role="img" aria-label="IELTS">
-            <img alt="" src={imageUrl("/images/cert-idp-ielts.png")} className="absolute top-[-16.58%] left-[-86.68%] h-[130.48%] w-[186.68%] max-w-none" />
+            <img alt="" src={imageUrl("/images/cert-idp-ielts.png", 700)} loading="lazy" decoding="async" className="absolute top-[-16.58%] left-[-86.68%] h-[130.48%] w-[186.68%] max-w-none" />
           </div>
           <div className="relative h-[4.978rem] w-[17.3125rem] max-w-full shrink-0 overflow-hidden" role="img" aria-label="CICC">
-            <img alt="" src={imageUrl("/images/cert-cicc.png")} className="absolute top-[-10.02%] left-0 h-[113.38%] w-full max-w-none" />
+            <img alt="" src={imageUrl("/images/cert-cicc.png", 600)} loading="lazy" decoding="async" className="absolute top-[-10.02%] left-0 h-[113.38%] w-full max-w-none" />
           </div>
         </div>
       </div>

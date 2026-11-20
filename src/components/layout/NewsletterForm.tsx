@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { getTurnstileToken } from "@/components/forms/turnstile";
 
 export default function NewsletterForm() {
   const [done, setDone] = useState(false);
@@ -10,7 +11,8 @@ export default function NewsletterForm() {
     const data = new FormData(event.currentTarget);
     setPending(true); setError("");
     try {
-      const response = await fetch("/api/newsletter", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: data.get("email"), website: data.get("website"), consent: data.get("consent") === "on" }) });
+      const turnstileToken = await getTurnstileToken();
+      const response = await fetch("/api/newsletter", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: data.get("email"), website: data.get("website"), consent: data.get("consent") === "on", turnstileToken }) });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error ?? "Unable to process your subscription.");
       setDone(true);

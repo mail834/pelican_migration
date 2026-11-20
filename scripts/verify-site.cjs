@@ -3,7 +3,7 @@ const assert=require('node:assert/strict');const fs=require('fs'),path=require('
 const old=Module._resolveFilename;Module._resolveFilename=function(request,parent,...rest){return old.call(this,request.startsWith('@/')?path.join(root,'src',request.slice(2)):request,parent,...rest);};
 for(const ext of ['.tsx','.ts'])require.extensions[ext]=function(mod,filename){mod._compile(ts.transpileModule(fs.readFileSync(filename,'utf8'),{compilerOptions:{jsx:ts.JsxEmit.ReactJSX,module:ts.ModuleKind.CommonJS,esModuleInterop:true,target:ts.ScriptTarget.ES2022}}).outputText,filename);};
 const {pages}=require(path.join(root,'src/content/pages.ts'));const {blogPosts}=require(path.join(root,'src/content/blogs.ts'));
-const routes=new Set(['/studio','/', '/contact-us','/blogs','/success-stories','/visa-gallery','/check-eligibility','/terms-of-service','/privacy-policy','/cookie-policy',...Object.keys(pages).map(s=>'/'+s),...blogPosts.map(p=>'/blogs/'+p.slug)]);
+const routes=new Set(['/', '/contact-us','/blogs','/success-stories','/visa-gallery','/check-eligibility','/terms-of-service','/privacy-policy','/cookie-policy',...Object.keys(pages).map(s=>'/'+s),...blogPosts.map(p=>'/blogs/'+p.slug)]);
 function walk(dir){return fs.readdirSync(dir,{withFileTypes:true}).flatMap(e=>e.isDirectory()?walk(path.join(dir,e.name)):[path.join(dir,e.name)]);}
 const imageAssets=JSON.parse(fs.readFileSync(path.join(root,'src/content/image-assets.json'),'utf8'));
 const missingLinks=new Map();const missingAssets=new Map();
@@ -20,7 +20,7 @@ function verifyContentAssets(value) {
 verifyContentAssets(pages); verifyContentAssets(blogPosts);
 const {imageUrl}=require(path.join(root,'src/lib/image-url.ts'));
 for(const [local,asset] of Object.entries(imageAssets)) {
- assert.ok(asset.url.startsWith('https://cdn.sanity.io/images/3zrn3yuo/production/'),local);
+ assert.ok(asset.url.startsWith('https://cdn.sanity.io/images/th8gmrhr/production/'),local);
  const url=new URL(imageUrl(local,640)); assert.equal(url.searchParams.get('w'),'640'); assert.equal(url.searchParams.get('auto'),'format');
 }
 assert.equal(imageUrl('/icons/play.svg',640),'/icons/play.svg');

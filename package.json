@@ -10,13 +10,12 @@
     "test:eligibility": "node scripts/verify-eligibility.cjs",
     "test:submissions": "node scripts/verify-submissions.cjs",
     "test:site": "node scripts/verify-site.cjs",
+    "test:headers": "node scripts/verify-headers.cjs",
     "test:cms": "node scripts/verify-cms.cjs",
     "cms:export": "node scripts/export-sanity.cjs",
     "cms:studio": "npm run dev --prefix studio",
     "cms:build": "npm run build --prefix studio",
-    "prebuild": "npm run cms:build",
-    "test:studio": "node scripts/verify-studio.cjs",
-    "predev": "npm run cms:build"
+    "cms:deploy": "npm run deploy --prefix studio"
   },
   "dependencies": {
     "@sanity/webhook": "^4.0.4",

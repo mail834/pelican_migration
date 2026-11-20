@@ -1,10 +1,80 @@
 /** Server-side validation and delivery. Never import this module into client UI. */
 const EMAIL = /^[^\s@<>\r\n]+@[^\s@<>\r\n]+\.[^\s@<>\r\n]+$/;
 const MAX_BODY = 65536;
+const RATE_LIMIT = 10;
+const RATE_WINDOW_SECONDS = 15 * 60;
 const requests = new Map<string, { count: number; until: number }>();
 const json = (error: string, status: number) => Response.json({ error }, { status });
 
-export async function parseSubmission(request: Request): Promise<Record<string, unknown> | Response> {
+/**
+ * Client IP as set by the hosting platform. Vercel sets x-real-ip and overwrites x-forwarded-for;
+ * behind any other proxy, that proxy must overwrite both (see docs/INTEGRATIONS.md).
+ */
+function clientIp(request: Request) {
+  return request.headers.get("x-real-ip")?.trim() || request.headers.get("x-forwarded-for")?.split(",")[0].trim() || "unknown";
+}
+
+/** IPs are hashed before they are used as keys, so the limiter never stores raw addresses. */
+async function rateKey(ip: string) {
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(`pelican-forms:${ip}`));
+  return `rl:form:${Buffer.from(digest).toString("base64url").slice(0, 32)}`;
+}
+
+/** Per-instance fallback. Resets on cold starts, so it is only a second layer behind the shared limit. */
+function localCount(key: string) {
+  const now = Date.now();
+  for (const [stored, value] of requests) if (value.until < now) requests.delete(stored);
+  const entry = requests.get(key) ?? { count: 0, until: now + RATE_WINDOW_SECONDS * 1000 };
+  entry.count += 1;
+  requests.set(key, entry);
+  return entry.count;
+}
+
+/** Shared count across all serverless instances via Upstash Redis REST. Returns null when unavailable. */
+async function sharedCount(key: string, transport: typeof fetch) {
+  const url = process.env.UPSTASH_REDIS_REST_URL ?? process.env.KV_REST_API_URL;
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN ?? process.env.KV_REST_API_TOKEN;
+  if (!url || !token) return null;
+  try {
+    const response = await transport(`${url.replace(/\/$/, "")}/pipeline`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+      body: JSON.stringify([["INCR", key], ["EXPIRE", key, String(RATE_WINDOW_SECONDS), "NX"]]),
+      signal: AbortSignal.timeout(2000),
+    });
+    if (!response.ok) throw new Error(`status ${response.status}`);
+    const [incr] = (await response.json()) as { result?: unknown }[];
+    if (typeof incr?.result !== "number") throw new Error("unexpected reply");
+    return incr.result;
+  } catch (problem) {
+    console.warn(JSON.stringify({ event: "rate_limit_store_unavailable", reason: problem instanceof Error ? problem.message : "unknown" }));
+    return null;
+  }
+}
+
+/**
+ * Cloudflare Turnstile check, enforced only when TURNSTILE_SECRET_KEY is set.
+ * A rejected token blocks the request; an unreachable Cloudflare does not, so real leads are not lost.
+ */
+async function verifyHuman(token: unknown, ip: string, transport: typeof fetch) {
+  const secret = process.env.TURNSTILE_SECRET_KEY;
+  if (!secret) return true;
+  if (typeof token !== "string" || !token || token.length > 2048) return false;
+  try {
+    const response = await transport("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+      method: "POST",
+      body: new URLSearchParams({ secret, response: token, ...(ip !== "unknown" ? { remoteip: ip } : {}) }),
+      signal: AbortSignal.timeout(5000),
+    });
+    if (!response.ok) throw new Error(`status ${response.status}`);
+    return (await response.json() as { success?: unknown }).success === true;
+  } catch (problem) {
+    console.warn(JSON.stringify({ event: "turnstile_unavailable", reason: problem instanceof Error ? problem.message : "unknown" }));
+    return true;
+  }
+}
+
+export async function parseSubmission(request: Request, transport: typeof fetch = fetch): Promise<Record<string, unknown> | Response> {
   const origin = request.headers.get("origin");
   if (origin && origin !== new URL(request.url).origin && origin !== process.env.SITE_ORIGIN) return json("Please submit this form from our website.", 403);
   if (!request.headers.get("content-type")?.includes("application/json")) return json("Unsupported request format.", 415);
@@ -20,20 +90,22 @@ export async function parseSubmission(request: Request): Promise<Record<string, 
     if (size > MAX_BODY) { await reader.cancel(); return json("This submission is too large.", 413); }
     chunks.push(value);
   }
+  let data: Record<string, unknown>;
   try {
     const body: unknown = JSON.parse(Buffer.concat(chunks).toString("utf8"));
     if (!body || typeof body !== "object" || Array.isArray(body)) return json("Please complete the form.", 400);
-    const data = body as Record<string, unknown>;
-    if (data.website) return json("Unable to accept this submission.", 400);
-    // Small local guard; configure a host-level distributed limit for production.
-    const ip = request.headers.get("x-forwarded-for")?.split(",")[0].trim() ?? "unknown";
-    const now = Date.now();
-    for (const [key, value] of requests) if (value.until < now) requests.delete(key);
-    const entry = requests.get(ip) ?? { count: 0, until: now + 15 * 60_000 };
-    entry.count += 1; requests.set(ip, entry);
-    if (entry.count > 10) return json("Too many requests. Please try again in 15 minutes.", 429);
-    return data;
+    data = body as Record<string, unknown>;
   } catch { return json("Please check your form and try again.", 400); }
+  if (data.website) return json("Unable to accept this submission.", 400);
+
+  const ip = clientIp(request);
+  const key = await rateKey(ip);
+  const count = (await sharedCount(key, transport)) ?? localCount(key);
+  if (count > RATE_LIMIT) return json("Too many requests. Please try again in 15 minutes.", 429);
+
+  const { turnstileToken, ...fields } = data;
+  if (!await verifyHuman(turnstileToken, ip, transport)) return json("We could not verify this submission. Please reload the page and try again.", 400);
+  return fields;
 }
 
 export async function deliverEnquiry(data: Record<string, unknown>, transport: typeof fetch = fetch) {

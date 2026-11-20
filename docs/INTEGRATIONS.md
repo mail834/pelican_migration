@@ -33,7 +33,17 @@ The receiving service must validate the token, store consent, handle repeat subs
 
 The API rejects invalid emails, unexpected bodies, excessive body/field sizes, cross-origin browser submissions and filled honeypots. Outbound requests have timeouts. Missing configuration returns 503 with contact details; failures never produce a success message. Form values are not written to logs or browser storage.
 
-The in-process rate guard is supplemental and resets on restarts. Configure a distributed rate limit and abuse protection at the production host before exposing the endpoints at scale. The proxy must overwrite client-supplied forwarding headers. Retention, access and deletion of delivered enquiry emails are controlled by the receiving inbox and provider.
+### Abuse protection
+
+Both form endpoints allow 10 submissions per client IP per 15 minutes. The IP comes from `x-real-ip`, which Vercel sets. Behind any other proxy, that proxy must overwrite `x-real-ip` and `x-forwarded-for`. IPs are SHA-256 hashed before use as keys.
+
+- **Shared limit (required in production):** create an Upstash Redis database (or Vercel KV) and set `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN`. Without them, or if Redis is unreachable, an in-process guard is used instead. That guard resets on cold starts and is per instance, so on serverless it is only a fallback.
+- **Bot check (recommended):** create a Cloudflare Turnstile widget (Managed mode) for the site's domains, then set `NEXT_PUBLIC_TURNSTILE_SITE_KEY` and `TURNSTILE_SECRET_KEY` together. The widget loads only when a form is submitted and stays invisible unless Cloudflare needs the visitor to interact. A rejected token blocks the submission. If Cloudflare is unreachable, the submission is allowed and a `turnstile_unavailable` warning is logged, so leads are not lost during an outage. The Content-Security-Policy in `next.config.ts` already allows `https://challenges.cloudflare.com`.
+
+### Security headers
+
+`next.config.ts` sends a Content-Security-Policy, HSTS, `nosniff`, `X-Frame-Options: DENY`, Referrer-Policy and Permissions-Policy on every route. The Studio gets framing protection only. The CSP lists exactly the external origins the browser loads (Sanity CDN, YouTube nocookie, Turnstile). **When adding any third-party script, embed, font, image host or API called from the browser, add its origin to the matching directive, or the browser will silently block it.** `npm run test:headers` guards the policy. HSTS omits `includeSubDomains` and `preload` until every `pelicanmigration.com` subdomain is confirmed HTTPS-only.
+- **Edge rule (optional extra layer):** a Vercel Firewall rate-limit rule on `/api/enquiries` and `/api/newsletter` stops floods before they reach the functions. Retention, access and deletion of delivered enquiry emails are controlled by the receiving inbox and provider.
 
 No live customer submissions or real subscription requests were sent during development. Delivery must be activated and tested after credentials are supplied.
 

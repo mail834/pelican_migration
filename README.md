@@ -38,8 +38,8 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 
 ## Sanity CMS
 
-The website is connected to project `3zrn3yuo`, dataset `production`. Run `npm run dev` to open the editor at `http://localhost:3000/studio`. Install Studio dependencies with `npm ci --prefix studio` on a fresh checkout; website dev/build commands build the editor automatically. Sign in using your Sanity project account.
+The website is connected to project `th8gmrhr`, dataset `production`. The editor (Sanity Studio) is hosted by Sanity on its own `*.sanity.studio` address, separate from the website. Run `npm ci --prefix studio` once, then `npm run cms:studio` to edit locally at `http://localhost:3333`, or `npm run cms:deploy` to publish Studio changes. Sign in using your Sanity project account.
 
 Editors can manage visa approval uploads, homepage video testimonials, text/video testimonials on other pages, blogs, and independent FAQ/guide-video sections for every page. See [CMS setup and publishing](docs/SANITY.md) and [form delivery setup](docs/INTEGRATIONS.md).
 
-Run `npm run test:cms`, `npm run test:site`, and `npm run typecheck --prefix studio` for CMS and content checks.
+Run `npm run test:cms`, `npm run test:site`, `npm run test:headers`, `npm run test:submissions`, and `npm run typecheck --prefix studio` for CMS, content, security and form checks.
