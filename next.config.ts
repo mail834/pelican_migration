@@ -3,10 +3,13 @@ import type { NextConfig } from "next";
 const isDev = process.env.NODE_ENV === "development";
 // Vercel's comment/feedback toolbar is injected on preview deployments only.
 const vercelLive = process.env.VERCEL_ENV === "preview" ? " https://vercel.live" : "";
+// Optional Cloudflare edge cache for Sanity images (cloudflare/image-cache). Must match src/lib/image-url.ts.
+const imageCdn = /^https:\/\/[a-z0-9.-]+$/.test(process.env.NEXT_PUBLIC_IMAGE_CDN ?? "") ? ` ${process.env.NEXT_PUBLIC_IMAGE_CDN}` : "";
 
 /**
  * Content-Security-Policy for the public site. Every external origin here is one the browser actually loads:
  * - cdn.sanity.io: CMS images, uploaded videos, posters and caption tracks
+ * - NEXT_PUBLIC_IMAGE_CDN (if set): the Cloudflare image cache in front of cdn.sanity.io
  * - www.youtube-nocookie.com: testimonial/guide video embeds
  * - challenges.cloudflare.com: Turnstile bot check on form submit (docs/INTEGRATIONS.md)
  * script-src keeps 'unsafe-inline' because Next's hydration scripts are inline; nonces would force every
@@ -16,7 +19,7 @@ const csp = [
   "default-src 'self'",
   `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} https://challenges.cloudflare.com${vercelLive}`,
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob: https://cdn.sanity.io",
+  `img-src 'self' data: blob: https://cdn.sanity.io${imageCdn}`,
   "media-src 'self' https://cdn.sanity.io",
   "font-src 'self' data:",
   `connect-src 'self' https://challenges.cloudflare.com${vercelLive}${isDev ? " ws:" : ""}`,

@@ -167,4 +167,21 @@ Measured on a production build with a cold cache, scrolling each page to the bot
 | Laptop 1440px @1× | ≈ 160 KB | ≈ 550 KB |
 | Retina 1440px @2× | ≈ 235 KB | ≈ 1.05 MB |
 
-At about 270 KB per new-visitor page view, 100 GB covers roughly 350,000 page views a month. For the homepage on phones alone it is about 65,000. Planned next step: put a Cloudflare cache in front of the Sanity image CDN, so Sanity serves each image variant about once per edge location rather than once per visitor. Check actual usage in Sanity Manage → Usage.
+At about 270 KB per new-visitor page view, 100 GB covers roughly 350,000 page views a month. For the homepage on phones alone it is about 65,000. Check actual usage in Sanity Manage → Usage.
+
+### Cloudflare image cache
+
+`cloudflare/image-cache` is a Cloudflare Worker at `img.pelicanmigration.ae` that serves the same `/images/th8gmrhr/production/...` paths from Cloudflare's edge cache, so Sanity serves each image variant about once per Cloudflare location instead of once per visitor. Sanity image URLs change whenever an image is replaced, so cached copies are kept for a year and never go stale.
+
+- Only this project's image paths and Sanity's image parameters are accepted; anything else returns 404 or is dropped, so it can't be used as an open proxy or to fill the cache with junk variants.
+- With `auto=format`, the cache keeps AVIF, WebP and original versions separately and picks one from the browser's `Accept` header.
+- The response header `x-edge-cache: HIT` or `MISS` shows whether Sanity was contacted.
+- Videos and captions still load from `cdn.sanity.io`.
+
+Deploy, then switch the site over:
+
+1. In the Cloudflare dashboard → Workers & Pages → Create → Worker, name it `pelican-image-cache`, paste `cloudflare/image-cache/worker.js`, and deploy. Then Settings → Domains & Routes → Add → Custom domain → `img.pelicanmigration.ae`. Cloudflare creates the DNS record. (Or run `npx wrangler login` and `npx wrangler deploy` in `cloudflare/image-cache`.)
+2. Check an image loads: `curl -sI "https://img.pelicanmigration.ae/images/th8gmrhr/production/dd5b6d1d272c8dd3589a55356cd3da4a0fcdce6b-1000x326.webp?w=600&auto=format" | grep -i x-edge-cache`. The second request should say `HIT`.
+3. In Vercel, set `NEXT_PUBLIC_IMAGE_CDN=https://img.pelicanmigration.ae` and redeploy. The value is built into the page and the Content-Security-Policy. To roll back, remove it and redeploy.
+
+The free Workers plan allows 100,000 requests a day, and every image request counts, including cache hits. That is roughly 3,000 page views a day. Above it, the Worker returns errors until the next day, so move to Workers Paid ($5/month) before traffic gets near that.

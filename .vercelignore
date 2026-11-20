@@ -2,3 +2,5 @@
 .next-cms
 # Sanity Studio is deployed separately to *.sanity.studio; the website build never needs it.
 studio
+# Cloudflare Worker, deployed separately with wrangler.
+cloudflare
