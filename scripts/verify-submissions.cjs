@@ -11,19 +11,51 @@ const { deliverEnquiry, deliverNewsletter, parseSubmission } = compiled.exports;
 const saved = { ...process.env };
 const enquiry = { name: 'Test Applicant', email: 'test@example.com', submissionId: 'unit-test-submission-123', kind: 'eligibility', fields: [{ label: 'Destination', value: 'Canada' }] };
 (async () => {
-  for (const key of ['RESEND_API_KEY', 'ENQUIRY_FROM_EMAIL', 'ENQUIRY_TO_EMAIL', 'NEWSLETTER_WEBHOOK_URL', 'NEWSLETTER_WEBHOOK_SECRET']) delete process.env[key];
+  for (const key of ['SMTP_HOST', 'SMTP_PORT', 'SMTP_USER', 'SMTP_PASS', 'ENQUIRY_FROM_EMAIL', 'ENQUIRY_TO_EMAIL', 'NEWSLETTER_WEBHOOK_URL', 'NEWSLETTER_WEBHOOK_SECRET', 'UPSTASH_REDIS_REST_URL', 'UPSTASH_REDIS_REST_TOKEN', 'KV_REST_API_URL', 'KV_REST_API_TOKEN']) delete process.env[key];
   assert.equal((await deliverEnquiry(enquiry)).status, 503);
   assert.equal((await deliverNewsletter({ email: 'test@example.com', consent: true })).status, 503);
   assert.equal((await deliverEnquiry({ ...enquiry, email: 'bad\nemail' })).status, 400);
   assert.equal((await deliverNewsletter({ email: 'test@example.com', consent: false })).status, 400);
-  process.env.RESEND_API_KEY = 'test-key'; process.env.ENQUIRY_FROM_EMAIL = 'website@example.com'; process.env.ENQUIRY_TO_EMAIL = 'team@example.com';
+  // SMTP settings present but sender/recipient missing: still unavailable, nothing sent.
+  process.env.SMTP_HOST = 'smtp.example.com'; process.env.SMTP_USER = 'website@example.com'; process.env.SMTP_PASS = 'abcd efgh ijkl mnop';
+  assert.equal((await deliverEnquiry(enquiry)).status, 503);
+  process.env.ENQUIRY_FROM_EMAIL = 'Pelican <website@example.com>'; process.env.ENQUIRY_TO_EMAIL = 'team@example.com';
   let outbound;
-  assert.equal((await deliverEnquiry(enquiry, async (url, options) => { outbound = { url, options }; return Response.json({ id: 'test-message' }); })).status, 200);
-  const payload = JSON.parse(outbound.options.body);
-  assert.deepEqual(payload.to, ['team@example.com']); assert.equal(payload.reply_to, 'test@example.com'); assert.match(payload.text, /Destination: Canada/); assert.equal(outbound.options.headers['Idempotency-Key'], 'enquiry-unit-test-submission-123');
-  assert.equal((await deliverEnquiry(enquiry, async () => Response.json({ error: 'provider failure' }, { status: 500 }))).status, 502);
-  assert.equal((await deliverEnquiry(enquiry, async () => Response.json({}))).status, 502);
-  assert.equal((await deliverEnquiry(enquiry, async () => { throw new Error('timeout'); })).status, 502);
+  assert.equal((await deliverEnquiry(enquiry, async (message) => { outbound = message; return { messageId: '<test@example.com>', rejected: [] }; })).status, 200);
+  assert.equal(outbound.to, 'team@example.com'); assert.equal(outbound.from, 'Pelican <website@example.com>'); assert.equal(outbound.replyTo, 'test@example.com');
+  assert.match(outbound.text, /Destination: Canada/); assert.equal(outbound.subject, 'Migration assessment: Test Applicant');
+
+  // Failures return 502 and log one structured event with no personal data.
+  const logged = []; const realError = console.error; console.error = (line) => logged.push(line);
+  try {
+    assert.equal((await deliverEnquiry(enquiry, async () => { throw Object.assign(new Error('Invalid login: 535 test@example.com Canada'), { code: 'EAUTH', responseCode: 535, command: 'AUTH PLAIN' }); })).status, 502);
+    assert.equal((await deliverEnquiry(enquiry, async () => ({ messageId: '<x@example.com>', rejected: ['team@example.com'] }))).status, 502);
+    assert.equal((await deliverEnquiry(enquiry, async () => ({}))).status, 502);
+    assert.equal((await deliverEnquiry(enquiry, async () => { throw Object.assign(new Error('timeout'), { code: 'ETIMEDOUT' }); })).status, 502);
+  } finally { console.error = realError; }
+  assert.equal(logged.length, 4);
+  const event = JSON.parse(logged[0]);
+  assert.deepEqual(event, { event: 'enquiry_delivery_failed', provider: 'smtp', stage: 'send', form: 'eligibility', code: 'EAUTH', responseCode: 535, command: 'AUTH PLAIN' });
+  for (const line of logged) for (const secret of ['test@example.com', 'Test Applicant', 'Canada', 'team@example.com']) assert.ok(!line.includes(secret), `log leaked ${secret}`);
+
+  // Duplicate protection: a repeated submission ID is acknowledged without a second email; a failed send releases the claim.
+  process.env.UPSTASH_REDIS_REST_URL = 'https://redis.example'; process.env.UPSTASH_REDIS_REST_TOKEN = 'redis-token';
+  const claimed = new Set(); const redisCommands = [];
+  const store = async (url, options) => { const [[command, key]] = JSON.parse(options.body); redisCommands.push(command); if (command === 'DEL') { claimed.delete(key); return Response.json([{ result: 1 }]); } const fresh = !claimed.has(key); claimed.add(key); return Response.json([{ result: fresh ? 'OK' : null }]); };
+  let sends = 0; const ok = async () => { sends += 1; return { messageId: '<ok@example.com>', rejected: [] }; };
+  assert.equal((await deliverEnquiry(enquiry, ok, store)).status, 200);
+  assert.equal((await deliverEnquiry(enquiry, ok, store)).status, 200);
+  assert.equal(sends, 1);
+  const retry = { ...enquiry, submissionId: 'unit-test-retry-456789' };
+  console.error = () => {};
+  try { assert.equal((await deliverEnquiry(retry, async () => { throw new Error('down'); }, store)).status, 502); } finally { console.error = realError; }
+  assert.equal((await deliverEnquiry(retry, ok, store)).status, 200);
+  assert.equal(sends, 2); assert.ok(redisCommands.includes('DEL'));
+  // Store outage: still sends rather than losing the lead.
+  const realWarn = console.warn; console.warn = () => {};
+  try { assert.equal((await deliverEnquiry({ ...enquiry, submissionId: 'unit-test-outage-000001' }, ok, async () => { throw new Error('down'); })).status, 200); } finally { console.warn = realWarn; }
+  assert.equal(sends, 3);
+  delete process.env.UPSTASH_REDIS_REST_URL; delete process.env.UPSTASH_REDIS_REST_TOKEN;
   process.env.NEWSLETTER_WEBHOOK_URL = 'https://mailing.example.com/subscribe'; process.env.NEWSLETTER_WEBHOOK_SECRET = 'test-secret';
   assert.equal((await deliverNewsletter({ email: 'test@example.com', consent: true }, async (url, options) => { outbound = { url, options }; return new Response(null, { status: 204 }); })).status, 200);
   assert.equal(outbound.options.headers.Authorization, 'Bearer test-secret'); assert.equal(JSON.parse(outbound.options.body).consent, true);

@@ -108,7 +108,72 @@ export async function parseSubmission(request: Request, transport: typeof fetch 
   return fields;
 }
 
-export async function deliverEnquiry(data: Record<string, unknown>, transport: typeof fetch = fetch) {
+export type EnquiryMessage = { from: string; to: string; replyTo: string; subject: string; text: string };
+export type SendMail = (message: EnquiryMessage) => Promise<{ messageId?: string; rejected?: unknown[] }>;
+
+const SMTP_TIMEOUT = 10_000;
+const DEDUPE_SECONDS = 24 * 60 * 60;
+
+/** SMTP settings from the environment, or null when incomplete. Port 465 uses TLS from the start; 587 upgrades with STARTTLS. */
+function smtpConfig() {
+  const host = process.env.SMTP_HOST?.trim();
+  const port = Number(process.env.SMTP_PORT || 465);
+  const user = process.env.SMTP_USER?.trim();
+  const pass = process.env.SMTP_PASS?.replace(/\s+/g, ""); // Google shows App Passwords in groups of four.
+  if (!host || !user || !pass || !Number.isInteger(port) || port <= 0) return null;
+  return { host, port, user, pass };
+}
+
+/** Sends one message over SMTP. A new connection per message suits serverless functions. */
+const smtpSend: SendMail = async (message) => {
+  const config = smtpConfig();
+  if (!config) throw new Error("SMTP is not configured");
+  const { createTransport } = await import("nodemailer");
+  const mailer = createTransport({
+    host: config.host, port: config.port, secure: config.port === 465, requireTLS: config.port !== 465,
+    auth: { user: config.user, pass: config.pass },
+    connectionTimeout: SMTP_TIMEOUT, greetingTimeout: SMTP_TIMEOUT, socketTimeout: SMTP_TIMEOUT,
+  });
+  try { return await mailer.sendMail(message); } finally { mailer.close(); }
+};
+
+/**
+ * Claims a submission ID in Redis so a double-click or retry sends one email, not two (SMTP has no idempotency key).
+ * Returns "new", "duplicate", or "unavailable" when Redis is not configured or unreachable.
+ */
+async function claimSubmission(id: string, transport: typeof fetch, release = false): Promise<"new" | "duplicate" | "unavailable"> {
+  const url = process.env.UPSTASH_REDIS_REST_URL ?? process.env.KV_REST_API_URL;
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN ?? process.env.KV_REST_API_TOKEN;
+  if (!url || !token) return "unavailable";
+  const key = `enquiry:sent:${id}`;
+  try {
+    const response = await transport(`${url.replace(/\/$/, "")}/pipeline`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+      body: JSON.stringify([release ? ["DEL", key] : ["SET", key, "1", "NX", "EX", String(DEDUPE_SECONDS)]]),
+      signal: AbortSignal.timeout(2000),
+    });
+    if (!response.ok) throw new Error(`status ${response.status}`);
+    const [reply] = (await response.json()) as { result?: unknown }[];
+    return release || reply?.result === "OK" ? "new" : "duplicate";
+  } catch (problem) {
+    console.warn(JSON.stringify({ event: "dedupe_store_unavailable", reason: problem instanceof Error ? problem.message : "unknown" }));
+    return "unavailable";
+  }
+}
+
+/** Structured failure log for alerting. Never include names, emails or field values. */
+function logDeliveryFailure(stage: string, problem: unknown, kind: unknown) {
+  const error = problem as { code?: unknown; responseCode?: unknown; command?: unknown; message?: unknown } | null;
+  console.error(JSON.stringify({
+    event: "enquiry_delivery_failed", provider: "smtp", stage, form: kind === "eligibility" ? "eligibility" : "enquiry",
+    code: typeof error?.code === "string" ? error.code : undefined,
+    responseCode: typeof error?.responseCode === "number" ? error.responseCode : undefined,
+    command: typeof error?.command === "string" ? error.command : undefined,
+  }));
+}
+
+export async function deliverEnquiry(data: Record<string, unknown>, send: SendMail = smtpSend, transport: typeof fetch = fetch) {
   const email = typeof data.email === "string" ? data.email.trim() : "";
   const name = typeof data.name === "string" ? data.name.trim() : "";
   if (!EMAIL.test(email) || email.length > 254 || !name || name.length > 160) return json("Please enter your name and a valid email address.", 400);
@@ -118,22 +183,25 @@ export async function deliverEnquiry(data: Record<string, unknown>, transport: t
     if (!field || typeof field.label !== "string" || typeof field.value !== "string" || field.label.length > 300 || field.value.length > 5000) return json("Please check the form details.", 400);
     fields.push({ label: field.label, value: field.value });
   }
-  const apiKey = process.env.RESEND_API_KEY;
-  const from = process.env.ENQUIRY_FROM_EMAIL;
-  const to = process.env.ENQUIRY_TO_EMAIL;
-  if (!apiKey || !from || !to) return json("Online enquiries are not available yet. Please call +971 4 564 6282 or email support@pelicanmigration.com.", 503);
+  const from = process.env.ENQUIRY_FROM_EMAIL?.trim();
+  const to = process.env.ENQUIRY_TO_EMAIL?.trim();
+  if ((send === smtpSend && !smtpConfig()) || !from || !to) return json("Online enquiries are not available yet. Please call +971 4 564 6282 or email support@pelicanmigration.com.", 503);
   const id = typeof data.submissionId === "string" && /^[\w-]{16,80}$/.test(data.submissionId) ? data.submissionId : crypto.randomUUID();
+  if (await claimSubmission(id, transport) === "duplicate") return Response.json({ ok: true });
+  const message: EnquiryMessage = {
+    from, to, replyTo: email,
+    subject: `${data.kind === "eligibility" ? "Migration assessment" : "Website enquiry"}: ${name.replace(/[\r\n]/g, " ")}`,
+    text: [`Name: ${name}`, `Email: ${email}`, `Page: ${typeof data.page === "string" ? data.page.slice(0, 500) : "Website"}`, "", ...fields.map((field) => `${field.label}: ${field.value}`)].join("\n"),
+  };
   try {
-    const response = await transport("https://api.resend.com/emails", {
-      method: "POST", headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json", "Idempotency-Key": `enquiry-${id}` },
-      body: JSON.stringify({ from, to: [to], reply_to: email, subject: `${data.kind === "eligibility" ? "Migration assessment" : "Website enquiry"}: ${name.replace(/[\r\n]/g, " ")}`, text: [`Name: ${name}`, `Email: ${email}`, `Page: ${typeof data.page === "string" ? data.page.slice(0, 500) : "Website"}`, "", ...fields.map((field) => `${field.label}: ${field.value}`)].join("\n") }),
-      signal: AbortSignal.timeout(15_000),
-    });
-    if (!response.ok) return json("We could not deliver your enquiry. Please try again or contact our team directly.", 502);
-    const accepted = await response.json();
-    if (!accepted.id) return json("We could not confirm delivery. Please try again.", 502);
+    const accepted = await send(message);
+    if (!accepted.messageId || accepted.rejected?.length) throw Object.assign(new Error("recipient rejected"), { code: "EREJECTED" });
     return Response.json({ ok: true });
-  } catch { return json("Unable to connect. Please try again or contact our team directly.", 502); }
+  } catch (problem) {
+    logDeliveryFailure("send", problem, data.kind);
+    await claimSubmission(id, transport, true); // Let the visitor's retry go through.
+    return json("We could not deliver your enquiry. Please try again or contact our team directly.", 502);
+  }
 }
 
 export async function deliverNewsletter(data: Record<string, unknown>, transport: typeof fetch = fetch) {

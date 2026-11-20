@@ -58,11 +58,11 @@ Popup: `src/components/layout/AssessmentPopup.tsx`, included in the root layout.
 - Added Ireland to the header’s Visit Visa menu.
 - Connected testimonial buttons to verified published YouTube videos with a dismissible player.
 - Guide sections accept optional `videoId` content for the future CMS. Until provided, they open Pelican’s official video-channel link rather than an empty player.
-- Replaced local success messages with enquiry/eligibility delivery endpoints using Resend, and a consent-based newsletter webhook endpoint. UI success requires provider acceptance.
+- Replaced local success messages with enquiry/eligibility delivery endpoints that send email over SMTP (Google Workspace), and a consent-based newsletter webhook endpoint. UI success requires provider acceptance.
 
 ## Activation still required
 
-- Configure Resend credentials and the verified sender/receiving inbox.
+- Configure the SMTP App Password and the sender/receiving inbox.
 - Configure the newsletter webhook and optional bearer secret.
 - Assign service-guide videos through Sanity when those videos are available.
 - Sanity CMS is now integrated and seeded with the existing content. Configure the production publishing webhook and host Studio when ready; see [Sanity setup](SANITY.md).
