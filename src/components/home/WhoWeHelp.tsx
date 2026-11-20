@@ -78,7 +78,7 @@ export default function WhoWeHelp() {
               <div className="absolute inset-0" style={{ backgroundImage: gradients[c.tone] }} aria-hidden />
               <div
                 className="absolute inset-0 opacity-[0.11]"
-                style={{ backgroundImage: `url(${imageUrl("/images/help-pattern.png")})`, backgroundSize: "64rem 64rem", backgroundPosition: "top left" }}
+                style={{ backgroundImage: `url(${imageUrl("/images/help-pattern.png", 1024, 50)})`, backgroundSize: "64rem 64rem", backgroundPosition: "top left" }}
                 aria-hidden
               />
               <div className="absolute overflow-hidden" style={{ right: c.frame.right, bottom: c.frame.bottom, width: c.frame.width, aspectRatio: c.frame.aspect }}>

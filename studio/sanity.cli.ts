@@ -1,2 +1,14 @@
 import { defineCliConfig } from "sanity/cli";
-export default defineCliConfig({ project: { basePath: "/studio" }, api: { projectId: process.env.SANITY_STUDIO_PROJECT_ID ?? process.env.SANITY_PROJECT_ID, dataset: process.env.SANITY_STUDIO_DATASET ?? process.env.SANITY_DATASET ?? "production" } });
+
+/**
+ * Studio is hosted by Sanity at https://<hostname>.sanity.studio (`npm run deploy --prefix studio`),
+ * on its own origin and separate from the public website. Local editing: `npm run cms:studio` → http://localhost:3333.
+ */
+export default defineCliConfig({
+  api: {
+    projectId: process.env.SANITY_STUDIO_PROJECT_ID ?? process.env.SANITY_PROJECT_ID,
+    dataset: process.env.SANITY_STUDIO_DATASET ?? process.env.SANITY_DATASET ?? "production",
+  },
+  // Set after the first deploy to skip the hostname prompt, e.g. "pelican-immigration".
+  ...(process.env.SANITY_STUDIO_HOSTNAME ? { studioHost: process.env.SANITY_STUDIO_HOSTNAME } : {}),
+});

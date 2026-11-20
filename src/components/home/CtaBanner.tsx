@@ -35,7 +35,7 @@ export default async function CtaBanner(props: Props) {
           {!light && (
             <div
               className="absolute inset-0 opacity-[0.03]"
-              style={{ backgroundImage: `url(${imageUrl("/images/banner-pattern.png")})`, backgroundSize: "64rem 64rem", backgroundPosition: "top left" }}
+              style={{ backgroundImage: `url(${imageUrl("/images/banner-pattern.png", 1024, 50)})`, backgroundSize: "64rem 64rem", backgroundPosition: "top left" }}
               aria-hidden
             />
           )}
@@ -76,7 +76,7 @@ export default async function CtaBanner(props: Props) {
           <div className="relative aspect-[953/520] w-full overflow-hidden lg:absolute lg:inset-y-0 lg:right-0 lg:aspect-auto lg:w-[61.09%]">
             {light ? (
               <Image
-                src={imageUrl("/images/banner-office-light.png")}
+                src="/images/banner-office-light.png"
                 alt="Pelican Migration consultant meeting clients in the Dubai office"
                 fill
                 sizes="(min-width:1024px) 60vw, 100vw"
@@ -84,7 +84,7 @@ export default async function CtaBanner(props: Props) {
               />
             ) : (
               <Image
-                src={imageUrl("/images/banner-office.png")}
+                src="/images/banner-office.png"
                 alt="Pelican Migration consultant meeting clients in the Dubai office"
                 fill
                 sizes="(min-width:1024px) 60vw, 100vw"

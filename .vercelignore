@@ -1,4 +1,4 @@
 .media-cache
-studio/node_modules
-studio/dist
 .next-cms
+# Sanity Studio is deployed separately to *.sanity.studio; the website build never needs it.
+studio

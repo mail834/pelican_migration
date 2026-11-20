@@ -1,10 +1,12 @@
 "use client";
 import { useRef, useState, type FormEvent } from "react";
+import { getTurnstileToken } from "./turnstile";
 
 export async function sendEnquiry(fields: { label: string; value: string }[], kind: string, submissionId: string, website = "") {
   const email = fields.find((entry) => /email/i.test(entry.label))?.value ?? "";
   const name = fields.find((entry) => /full.?name|^name$|first.?name/i.test(entry.label))?.value ?? "";
-  const response = await fetch("/api/enquiries", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ kind, email, name, fields, submissionId, website, page: window.location.pathname }) });
+  const turnstileToken = await getTurnstileToken();
+  const response = await fetch("/api/enquiries", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ kind, email, name, fields, submissionId, website, turnstileToken, page: window.location.pathname }) });
   const result = await response.json();
   if (!response.ok) throw new Error(result.error ?? "Unable to send your enquiry. Please try again.");
 }

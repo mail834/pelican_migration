@@ -1,26 +1,40 @@
 # Sanity CMS
 
-Project: `3zrn3yuo`. Dataset: `production`.
+Project: `th8gmrhr`. Dataset: `production`.
 
 The website is connected to published Sanity content. The initial import created 68 content documents: 44 independent page settings, 4 blog posts, 6 reusable videos, 11 video/text testimonials, 2 unique visa approvals and collection settings. Existing local content remains a fallback when the CMS is unavailable or collection management is disabled.
 
 ## Open the editor
 
+Studio is hosted by Sanity at its own address, `https://<hostname>.sanity.studio`, separate from the public website. Keeping the editor on a different origin means a problem on a public page can never act with an editor's signed-in session. Sign in with a Sanity account that belongs to this project. Sanity controls editor permissions; no write token is exposed to the public website. When `SANITY_STUDIO_URL` is set on the website, `https://<website>/studio` redirects editors there.
+
+### Deploy or update the hosted Studio
+
 ```sh
-npm run dev
+npm ci --prefix studio                # once per checkout
+(cd studio && npx sanity login)       # once, as a project administrator
+npm run cms:deploy                    # builds and uploads Studio; first run asks for a hostname
 ```
 
-Open `http://localhost:3000/studio` and sign in with a Sanity account that belongs to this project. Sanity controls editor permissions; no write token is exposed to the public website. Studio is a separate app, so its editing packages do not increase the website’s visitor JavaScript bundle.
+After the first deploy, set `SANITY_STUDIO_HOSTNAME=<hostname>` in `studio/.env` to skip the prompt, and set `SANITY_STUDIO_URL=https://<hostname>.sanity.studio` in the website's Vercel environment. Redeploy Studio after any schema change in `studio/schemaTypes`.
 
-The website builds Studio automatically before `npm run dev` and `npm run build`. After changing schemas while the website is running, run `npm run cms:build` and refresh the editor. On a fresh checkout or deployment, install both sets of dependencies with `npm ci` and `npm ci --prefix studio`. Production serves the same editor at `/studio`; add the website origin to Sanity API CORS origins with **Allow credentials** enabled. Localhost port 3000 is already configured.
+In Sanity Manage → API → CORS origins, keep only the Studio host (added automatically on deploy) and `http://localhost:3333` for local editing. The website reads Sanity only from the server, so it needs no CORS entry. Remove any entry for the public website domain or `http://localhost:3000`.
 
-For optional separate Sanity hosting, run `npm run deploy --prefix studio` while signed in to the intended Sanity account and choose the desired Studio hostname. Studio hosting has not been deployed as part of the local integration.
+### Local editing
+
+```sh
+npm run cms:studio
+```
+
+This opens `http://localhost:3333`. Studio is a separate app, so its editing packages do not increase the website’s visitor JavaScript bundle.
+
+The website no longer builds or serves Studio. Studio dependencies (`npm ci --prefix studio`) are needed only on machines that edit schemas, run imports or deploy Studio. `npm run cms:build` checks that Studio compiles without deploying it.
 
 ## What editors can manage
 
 | Studio area | Website behavior |
 | --- | --- |
-| Visa Approvals | Upload approval images with alt text, country, visa type and display order. `Feature on homepage` controls the home selection; the gallery shows the collection. Use redacted images intended for public display. |
+| Visa Approvals | Upload approval images with alt text, country, visa type and display order. `Feature on homepage` controls the home selection; the gallery shows the collection. Approvals are real client documents: tick `Personal data redacted` only after checking that the name, passport/UCI/file numbers, date of birth, address and signature are hidden. Studio won't publish without it, and the website never shows an unticked approval. |
 | Videos | Add an 11-character YouTube ID or upload compressed MP4/WebM. Upload a thumbnail; optional WebVTT captions are supported for uploaded videos. Long videos are best streamed through YouTube. |
 | Testimonials | Choose video or text, client display name, quote/rating or a reusable video. Homepage features video testimonials only. |
 | Page Sections → choose a page | Edit only that page’s FAQ questions/answers, guide video and testimonial selection. Drag references/FAQ items to reorder. Country pages remain independent. The path on these pinned records is fixed. |
@@ -74,18 +88,28 @@ The endpoint validates Sanity’s signature over the raw request body before inv
 Website (`.env.local` locally, hosting environment in production):
 
 ```text
-SANITY_PROJECT_ID=3zrn3yuo
+SANITY_PROJECT_ID=th8gmrhr
 SANITY_DATASET=production
-SANITY_API_READ_TOKEN=         # only for a private dataset
+SANITY_API_READ_TOKEN=         # required: Viewer token, the dataset is private
 SANITY_REVALIDATE_SECRET=      # server-only webhook secret
 ```
 
-The production Studio build maps `SANITY_PROJECT_ID` and `SANITY_DATASET` to its public `SANITY_STUDIO_*` equivalents automatically. You can use the same project/dataset variables for the website and embedded editor on Vercel; tokens and webhook secrets are never mapped to public variables.
+The Studio build maps `SANITY_PROJECT_ID` and `SANITY_DATASET` to its public `SANITY_STUDIO_*` equivalents automatically, so root `.env.local` works for Studio commands too. Tokens and webhook secrets are never mapped to public variables.
+
+### Private dataset
+
+The `production` dataset is private, so anonymous API queries see no documents. Without `SANITY_API_READ_TOKEN`, the website quietly falls back to local content, so set the token before switching the dataset to private. The steps, in order:
+
+1. In sanity.io/manage → project `th8gmrhr` → API → Tokens, create a token with the **Viewer** role. Add it as `SANITY_API_READ_TOKEN` in `.env.local` and in the Vercel environment, then redeploy.
+2. Make the dataset private: `cd studio && npx sanity dataset visibility set production private`.
+3. Check: `node --env-file=.env.local scripts/verify-cms-live.cjs` should report `DATA-001: dataset is not publicly readable`.
+
+Uploaded images and files on `cdn.sanity.io` stay reachable by URL even when the dataset is private. Anyone can open an asset whose URL they know, but nobody can list the assets anymore. A private dataset does not replace redaction.
 
 Studio (`studio/.env`):
 
 ```text
-SANITY_STUDIO_PROJECT_ID=3zrn3yuo
+SANITY_STUDIO_PROJECT_ID=th8gmrhr
 SANITY_STUDIO_DATASET=production
 ```
 
@@ -119,4 +143,28 @@ The custom Next Image loader requests responsive widths and automatic formats fr
 
 `node scripts/migrate-images.mjs --upload` compresses new raster files placed in `public/images` and adds missing mappings. Compression staging is ignored by Git and Vercel. After uploading a replacement for an existing path, deliberately update its manifest entry; the script preserves existing entries. Run `npm run cms:export` to refresh import records after adding assets. Run `npm run test:site` to check literal and generated content paths before removing migrated local files.
 
-For Vercel, install both applications during the install step: `npm ci && npm ci --prefix studio`. The normal `npm run build` command builds Studio and the website.
+Keep `.media-cache` (it holds the byte-identical originals of the uploaded images). Sanity's public CDN serves only re-encoded copies of WebP files, so these local files are the only way to reproduce exact asset IDs, for example when moving to another Sanity project (`studio/scripts/copy-dataset.mjs --local-dir=../.media-cache`).
+
+Vercel installs and builds only the website. The `studio` folder is excluded by `.vercelignore`.
+
+## Bandwidth budget
+
+The free Sanity plan includes 100 GB of CDN bandwidth per month. Sanity bills every byte its CDN serves, including its own cache hits. Browsers cache images for a year, so returning visitors cost nothing. New visitors pay the full page weight.
+
+How the site keeps that small:
+
+- **Quality by width** (`src/lib/image-url.ts`): q=75 up to 640px, q=65 above. Widths above 640px are requested almost only by 2–3× screens, where the difference is not visible.
+- **Width ladder capped at 1920px** (`next.config.ts` → `images.deviceSizes`). Next's default reaches 3840px.
+- **Every image has an explicit width.** Plain `<img>` tags pass one to `imageUrl()` and lazy-load. Never call `imageUrl(path)` without a width for a visible image, because that serves the full original.
+- **`auto=format`** serves AVIF/WebP. AVIF is generated in the background, so the first requests may be WebP.
+- **Uploaded videos are limited to 25 MB** by the Studio schema. Prefer YouTube, because every view of an uploaded video downloads the whole file from Sanity.
+
+Measured on a production build with a cold cache, scrolling each page to the bottom (19 Nov 2026, 10 representative pages):
+
+| Device | Average per page | Homepage |
+| --- | --- | --- |
+| Phone 390px @3× | ≈ 270 KB | ≈ 1.4–1.7 MB |
+| Laptop 1440px @1× | ≈ 160 KB | ≈ 550 KB |
+| Retina 1440px @2× | ≈ 235 KB | ≈ 1.05 MB |
+
+At about 270 KB per new-visitor page view, 100 GB covers roughly 350,000 page views a month. For the homepage on phones alone it is about 65,000. Planned next step: put a Cloudflare cache in front of the Sanity image CDN, so Sanity serves each image variant about once per edge location rather than once per visitor. Check actual usage in Sanity Manage → Usage.

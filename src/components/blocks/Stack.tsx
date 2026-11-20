@@ -141,7 +141,9 @@ function El({ e }: { e: StackEl }) {
               </div>
               <img
                 alt=""
-                src={imageUrl(u.logo)}
+                src={imageUrl(u.logo, u.logoSize[0] * 2)}
+                loading="lazy"
+                decoding="async"
                 width={u.logoSize[0]}
                 height={u.logoSize[1]}
                 style={{ width: `${u.logoSize[0] / 16}rem`, height: `${u.logoSize[1] / 16}rem` }}

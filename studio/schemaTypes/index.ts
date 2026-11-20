@@ -1,5 +1,8 @@
 import { defineArrayMember, defineField, defineType } from "sanity";
 
+/** Uploaded videos are served whole from Sanity's CDN on every view; this keeps one popular video from using the monthly bandwidth. */
+const MAX_VIDEO_BYTES = 25 * 1024 * 1024;
+
 const image = (name: string, title: string) => defineField({ name, title, type: "image", options: { hotspot: true }, fields: [{ name: "alt", title: "Alternative text", type: "string", validation: (rule) => rule.required() }], validation: (rule) => rule.required() });
 const order = defineField({ name: "sortOrder", title: "Display order", type: "number", initialValue: 0 });
 const external = defineType({ name: "link", type: "object", fields: [defineField({ name: "href", title: "URL", type: "url", validation: (rule) => rule.required().uri({ scheme: ["https", "http", "mailto"] }) })] });
@@ -7,7 +10,12 @@ export const video = defineType({ name: "video", title: "Videos", type: "documen
   defineField({ name: "title", type: "string", validation: (rule) => rule.required() }),
   defineField({ name: "source", type: "string", options: { list: [{ title: "YouTube (recommended for streaming)", value: "youtube" }, { title: "Upload MP4 / WebM", value: "upload" }], layout: "radio" }, initialValue: "youtube", validation: (rule) => rule.required() }),
   defineField({ name: "youtubeId", title: "YouTube video ID", description: "The 11 characters after watch?v= (for example wLAOihHHS94).", type: "string", hidden: ({ document }) => document?.source !== "youtube", validation: (rule) => rule.custom((value, context) => context.document?.source === "youtube" && !/^[\w-]{11}$/.test(value ?? "") ? "Enter a valid 11-character YouTube ID" : true) }),
-  defineField({ name: "file", title: "Video upload", type: "file", options: { accept: "video/mp4,video/webm" }, hidden: ({ document }) => document?.source !== "upload", description: "Use compressed, web-ready media. YouTube is preferable for long videos.", validation: (rule) => rule.custom((value, context) => context.document?.source === "upload" && !value?.asset ? "Upload a video" : true) }),
+  defineField({ name: "file", title: "Video upload", type: "file", options: { accept: "video/mp4,video/webm" }, hidden: ({ document }) => document?.source !== "upload", description: "Maximum 25 MB. Every view downloads the whole file from Sanity's CDN, which has a monthly bandwidth limit, so use YouTube for anything longer than a short clip.", validation: (rule) => rule.custom(async (value, context) => {
+    if (context.document?.source !== "upload") return true;
+    if (!value?.asset?._ref) return "Upload a video";
+    const size = await context.getClient({ apiVersion: "2025-02-19" }).fetch<number | null>("*[_id == $id][0].size", { id: value.asset._ref });
+    return size && size > MAX_VIDEO_BYTES ? `This video is ${(size / 1048576).toFixed(0)} MB. The limit is 25 MB: compress it, or upload it to YouTube and use the YouTube option.` : true;
+  }) }),
   image("poster", "Poster / thumbnail"),
   defineField({ name: "captions", title: "English captions (WebVTT, for uploaded videos)", type: "file", options: { accept: ".vtt" } }),
 ], preview: { select: { title: "title", media: "poster", subtitle: "source" } } });
@@ -17,6 +25,7 @@ export const approval = defineType({ name: "visaApproval", title: "Visa Approval
   defineField({ name: "visaType", title: "Visa / programme", type: "string" }),
   defineField({ name: "approvedOn", title: "Approval date", type: "date" }),
   { ...image("image", "Approval image"), description: "Upload a redacted image intended for public display. Remove passport numbers and unapproved personal details." },
+  defineField({ name: "redacted", title: "Personal data redacted", type: "boolean", initialValue: false, description: "Required. Tick only after checking the image hides the client's name, passport / UCI / file numbers, date of birth, address and signature. Unticked approvals are never shown on the website.", validation: (rule) => rule.custom((value) => value === true ? true : "Confirm the image is redacted before publishing") }),
   defineField({ name: "showOnHome", title: "Feature on homepage", type: "boolean", initialValue: false }), order,
 ], preview: { select: { title: "title", subtitle: "country", media: "image" } } });
 export const testimonial = defineType({ name: "testimonial", title: "Testimonials (Video / Text)", type: "document", fields: [
