@@ -1,4 +1,4 @@
-import Image from "next/image";
+import ApprovalGallery from "@/components/ui/ApprovalGallery";
 import SectionHeading from "@/components/ui/SectionHeading";
 import { ButtonLink } from "@/components/ui/Button";
 
@@ -17,13 +17,11 @@ export default function VisaApprovals({ approvals = defaultApprovals }: { approv
       <div className="container-page flex flex-col items-center gap-10 py-[3.75rem]">
         <SectionHeading title="Our Visa Approvals" />
         <div className="flex w-full flex-col items-center gap-7">
-          <div className="grid w-full grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5 lg:gap-x-[3.1875rem]">
-            {approvals.map((a, i) => (
-              <div key={i} className="card-hover relative aspect-[271/336] w-full overflow-hidden rounded-sm">
-                <Image src={a.image} alt={a.alt} fill sizes="(min-width:1024px) 20vw, (min-width:640px) 33vw, 50vw" className={a.id ? "object-contain" : "object-cover"} />
-              </div>
-            ))}
-          </div>
+          <ApprovalGallery
+            items={approvals.map((a) => ({ image: a.image, alt: a.alt, contain: !!a.id }))}
+            sizes="(min-width:1024px) 20vw, (min-width:640px) 33vw, 50vw"
+            className="grid w-full grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5 lg:gap-x-[3.1875rem]"
+          />
           <ButtonLink href="/visa-gallery" variant="secondary">
             Explore  Visa Gallery
           </ButtonLink>

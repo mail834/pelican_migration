@@ -2,7 +2,7 @@ import { ButtonLink } from "@/components/ui/Button";
 import { VLine } from "@/components/ui/Lines";
 
 const stats = [
-  { value: "25+", label: "Years of Experience" },
+  { value: "10+", label: "Years of Experience" },
   { value: "1000+", label: "Applications Supported" },
   { value: "1:1", label: "Personal Guidance" },
   { value: "100%", label: "Transparent Process" },
