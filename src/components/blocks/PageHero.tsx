@@ -68,7 +68,7 @@ export default function PageHero({ image, breadcrumb, title, tops, titleWidth = 
       <Image src={image} alt="" fill priority sizes="100vw" className="object-cover object-[65%_center] xl:object-center" />
       <div className="absolute inset-0 bg-navy-500/55 xl:hidden" aria-hidden />
 
-      <div className="container-page relative flex flex-col gap-6 py-12 md:py-16 xl:h-[49.625rem] xl:py-0">
+      <div className="container-page relative flex flex-col gap-6 py-12 md:py-16 xl:min-h-[49.625rem] xl:pt-0 xl:pb-16">
         {tops.breadcrumb !== undefined && (
           <div className={abs} style={pos(tops.breadcrumb)}>
             <Breadcrumb items={breadcrumb} />
@@ -103,7 +103,7 @@ export default function PageHero({ image, breadcrumb, title, tops, titleWidth = 
         {form && (
           <div
             id="assessment"
-            className="w-full max-w-[35.125rem] scroll-mt-32 xl:absolute xl:top-[var(--top)] xl:right-[var(--gutter)] xl:w-[35.125rem]"
+            className="w-full max-w-[35.125rem] scroll-mt-32 xl:mt-[var(--top)] xl:self-end xl:w-[35.125rem]"
             style={pos(form.top ?? 239)}
           >
             <HeroForm {...form} />
