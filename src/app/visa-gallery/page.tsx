@@ -1,16 +1,19 @@
 import { getApprovals, getPageContent } from "@/lib/cms/content";
 import PageSections from "@/components/cms/PageSections";
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import ApprovalGallery from "@/components/ui/ApprovalGallery";
 import SiteHero from "@/components/site/SiteHero";
 import ContactSection from "@/components/site/ContactSection";
 import { Section } from "@/components/blocks/Blocks";
 import SectionHeading from "@/components/ui/SectionHeading";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Visa Approvals | Pelican Migration Consultants",
   description: "Visa approval highlights from Pelican Migration Consultants clients.",
-};
+  path: "/visa-gallery",
+  image: "/images/pages/site/gallery-hero.png",
+});
 
 const defaultApprovals = Array.from({ length: 10 }, (_, i) =>
   (i % 5) % 2 === 0

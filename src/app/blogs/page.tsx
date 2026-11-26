@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import SiteHero from "@/components/site/SiteHero";
 import BlogCard, { BlogGrid } from "@/components/site/BlogCard";
 import { Section } from "@/components/blocks/Blocks";
@@ -6,10 +7,12 @@ import { HLine, VLine } from "@/components/ui/Lines";
 import { getBlogs, getPageContent } from "@/lib/cms/content";
 import PageSections from "@/components/cms/PageSections";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Blogs and News | Pelican Migration Consultants",
   description: "Immigration insights, document checklists and visa pathway guides from Pelican Migration Consultants.",
-};
+  path: "/blogs",
+  image: "/images/pages/site/blogs-hero.png",
+});
 
 export const revalidate = 3600;
 export default async function BlogsPage() {

@@ -5,6 +5,7 @@ import PageHero from "@/components/blocks/PageHero";
 import RenderBlocks from "@/components/blocks/RenderBlocks";
 import { eligibilityHref, linkEligibilityCtas } from "@/lib/eligibility";
 import { pages } from "@/content/pages";
+import { pageMetadata } from "@/lib/seo";
 
 export const revalidate = 3600;
 
@@ -19,7 +20,7 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   const { slug } = await params;
   const page = pages[slug.join("/")];
   if (!page) return {};
-  return { title: page.metaTitle, description: page.metaDescription };
+  return pageMetadata({ title: page.metaTitle, description: page.metaDescription, image: page.hero.image, path: `/${page.slug}` });
 }
 
 export default async function ContentPage({ params }: { params: Promise<Params> }) {

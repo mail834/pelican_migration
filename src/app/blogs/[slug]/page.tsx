@@ -10,6 +10,7 @@ import { articleSources } from "@/content/additional-articles";
 import { getBlog, getBlogs, getPageContent } from "@/lib/cms/content";
 import PortableBody from "@/components/cms/PortableBody";
 import PageSections from "@/components/cms/PageSections";
+import { pageMetadata } from "@/lib/seo";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -22,7 +23,9 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const post = await getBlog(slug);
-  return post ? { title: post.seoTitle ?? `${post.title} | Pelican Migration Consultants`, description: post.seoDescription ?? post.excerpt ?? post.title } : {};
+  if (!post) return {};
+  const title = post.seoTitle ?? `${post.title} | Pelican Migration Consultants`;
+  return pageMetadata({ title, description: post.seoDescription ?? post.excerpt ?? post.title, image: post.image, path: `/blogs/${post.slug}`, type: "article" });
 }
 
 export default async function BlogDetailPage({ params }: Props) {

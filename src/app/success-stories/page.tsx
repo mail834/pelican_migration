@@ -1,15 +1,18 @@
 import { getPageContent } from "@/lib/cms/content";
 import PageSections from "@/components/cms/PageSections";
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import SiteHero from "@/components/site/SiteHero";
 import StoryTabs from "@/components/site/StoryTabs";
 import ContactSection from "@/components/site/ContactSection";
 import { Section } from "@/components/blocks/Blocks";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Success Stories | Pelican Migration Consultants",
   description: "Client testimonials and reviews from families and professionals who migrated with Pelican Migration Consultants.",
-};
+  path: "/success-stories",
+  image: "/images/pages/site/stories-hero.png",
+});
 
 export const revalidate = 3600;
 export default async function SuccessStoriesPage() {

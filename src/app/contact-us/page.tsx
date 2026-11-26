@@ -1,6 +1,7 @@
 import { getPageContent } from "@/lib/cms/content";
 import PageSections from "@/components/cms/PageSections";
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import Image from "next/image";
 import SiteHero from "@/components/site/SiteHero";
 import ContactSection from "@/components/site/ContactSection";
@@ -8,10 +9,12 @@ import { Section } from "@/components/blocks/Blocks";
 import SectionHeading from "@/components/ui/SectionHeading";
 import { HLine } from "@/components/ui/Lines";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Contact Us | Pelican Migration Consultants",
   description: "Talk to Pelican Migration Consultants in Business Bay, Dubai. Call +971 4 564 6282 or send us your immigration plans for a free assessment.",
-};
+  path: "/contact-us",
+  image: "/images/pages/site/contact-hero.png",
+});
 
 const MAP_URL = "https://www.google.com/maps/search/?api=1&query=Iris+Bay+Tower+Business+Bay+Dubai";
 
