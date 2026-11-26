@@ -25,7 +25,7 @@ export default function AssessmentPopup() {
       dismissed = sessionStorage.getItem(STORAGE_KEY) === "1";
     } catch {}
     if (dismissed) return;
-    const t = setTimeout(() => setOpen(true), 8000);
+    const t = setTimeout(() => setOpen(true), 40000);
     return () => clearTimeout(t);
   }, [pathname]);
 

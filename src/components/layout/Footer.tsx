@@ -171,9 +171,6 @@ export default function Footer() {
               </Link>
             ))}
           </div>
-          <p className="t-body2 py-2 text-[#fdfdfd]">
-            Designed &amp; Developed by <span className="text-orange-300">mits</span>
-          </p>
         </div>
       </div>
     </footer>
