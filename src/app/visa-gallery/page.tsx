@@ -12,7 +12,6 @@ export const metadata: Metadata = pageMetadata({
   title: "Visa Approvals | Pelican Migration Consultants",
   description: "Visa approval highlights from Pelican Migration Consultants clients.",
   path: "/visa-gallery",
-  image: "/images/pages/site/gallery-hero.png",
 });
 
 const defaultApprovals = Array.from({ length: 10 }, (_, i) =>

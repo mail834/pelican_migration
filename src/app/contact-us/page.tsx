@@ -13,7 +13,6 @@ export const metadata: Metadata = pageMetadata({
   title: "Contact Us | Pelican Migration Consultants",
   description: "Talk to Pelican Migration Consultants in Business Bay, Dubai. Call +971 4 564 6282 or send us your immigration plans for a free assessment.",
   path: "/contact-us",
-  image: "/images/pages/site/contact-hero.png",
 });
 
 const MAP_URL = "https://www.google.com/maps/search/?api=1&query=Iris+Bay+Tower+Business+Bay+Dubai";

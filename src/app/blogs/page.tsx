@@ -11,7 +11,6 @@ export const metadata: Metadata = pageMetadata({
   title: "Blogs and News | Pelican Migration Consultants",
   description: "Immigration insights, document checklists and visa pathway guides from Pelican Migration Consultants.",
   path: "/blogs",
-  image: "/images/pages/site/blogs-hero.png",
 });
 
 export const revalidate = 3600;

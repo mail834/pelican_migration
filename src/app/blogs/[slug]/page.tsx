@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const post = await getBlog(slug);
   if (!post) return {};
   const title = post.seoTitle ?? `${post.title} | Pelican Migration Consultants`;
-  return pageMetadata({ title, description: post.seoDescription ?? post.excerpt ?? post.title, image: post.image, path: `/blogs/${post.slug}`, type: "article" });
+  return pageMetadata({ title, description: post.seoDescription ?? post.excerpt ?? post.title, path: `/blogs/${post.slug}`, type: "article" });
 }
 
 export default async function BlogDetailPage({ params }: Props) {

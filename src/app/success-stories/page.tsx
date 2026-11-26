@@ -11,7 +11,6 @@ export const metadata: Metadata = pageMetadata({
   title: "Success Stories | Pelican Migration Consultants",
   description: "Client testimonials and reviews from families and professionals who migrated with Pelican Migration Consultants.",
   path: "/success-stories",
-  image: "/images/pages/site/stories-hero.png",
 });
 
 export const revalidate = 3600;

@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   const { slug } = await params;
   const page = pages[slug.join("/")];
   if (!page) return {};
-  return pageMetadata({ title: page.metaTitle, description: page.metaDescription, image: page.hero.image, path: `/${page.slug}` });
+  return pageMetadata({ title: page.metaTitle, description: page.metaDescription, path: `/${page.slug}` });
 }
 
 export default async function ContentPage({ params }: { params: Promise<Params> }) {
