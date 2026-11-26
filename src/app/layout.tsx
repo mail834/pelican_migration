@@ -6,6 +6,7 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import FloatingContact from "@/components/layout/FloatingContact";
 import AssessmentPopup from "@/components/layout/AssessmentPopup";
+import { SITE_URL, pageMetadata } from "@/lib/seo";
 
 const jakarta = Plus_Jakarta_Sans({
   variable: "--font-jakarta",
@@ -14,9 +15,13 @@ const jakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Pelican Migration Consultants | Trusted Immigration Consultants in Dubai",
-  description:
-    "Pelican Migration Consultants helps you migrate to Canada, Australia, New Zealand and Portugal with personalized guidance, a transparent process and professional support.",
+  metadataBase: new URL(SITE_URL),
+  ...pageMetadata({
+    title: "Pelican Migration Consultants | Trusted Immigration Consultants in Dubai",
+    description:
+      "Pelican Migration Consultants helps you migrate to Canada, Australia, New Zealand and Portugal with personalized guidance, a transparent process and professional support.",
+    path: "/",
+  }),
 };
 
 export default function RootLayout({

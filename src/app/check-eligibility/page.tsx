@@ -1,14 +1,16 @@
 import { getPageContent } from "@/lib/cms/content";
 import PageSections from "@/components/cms/PageSections";
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import Link from "next/link";
 import EligibilityForm from "@/components/eligibility/EligibilityForm";
 import { eligibilityServices } from "@/lib/eligibility";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Check Your Eligibility | Pelican Migration Consultants",
   description: "Explore your migration pathway with a country-specific profile assessment from Pelican Migration Consultants.",
-};
+  path: "/check-eligibility",
+});
 
 export default async function EligibilityPage({ searchParams }: { searchParams: Promise<{ country?: string; service?: string }> }) {
   const content = await getPageContent("/check-eligibility");
